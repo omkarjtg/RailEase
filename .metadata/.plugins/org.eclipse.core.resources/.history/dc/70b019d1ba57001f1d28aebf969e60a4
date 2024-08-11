@@ -1,0 +1,9 @@
+spring.application.name=UserService
+server.port= 8085
+spring.datasource.url = jdbc:mysql://localhost:3306/cdac_user
+spring.datasource.username=root
+spring.datasource.password=password
+
+spring.jpa.show-sql=true
+spring.jpa.hibernate.ddl-auto=update
+

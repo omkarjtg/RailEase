@@ -1,0 +1,53 @@
+package com.trainservice.service;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.trainservice.entity.Train;
+import com.trainservice.repository.TrainRepository;
+
+@Service
+public class TrainServiceImpl implements TrainService {
+	
+	@Autowired
+	private TrainRepository trainRepository;
+
+	@Override
+	public String addTrain(Train train) {
+		trainRepository.save(train);
+		return "Train added";
+	}
+
+	@Override
+	public List<Train> getAll() {
+		return trainRepository.findAll();
+	}
+
+	@Override
+	public List<Train> getByLocation(String source, String destination, LocalDate date) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Train getTrain(String trainNumber) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String updateTrain(Train t) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String deleteTrain(Train t) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

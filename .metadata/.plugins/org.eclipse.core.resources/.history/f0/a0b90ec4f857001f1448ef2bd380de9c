@@ -1,0 +1,57 @@
+package com.trainservice.controller;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.trainservice.entity.Train;
+import com.trainservice.service.TrainService;
+
+@RestController
+@RequestMapping("/train")
+public class TrainController {
+	
+	@Autowired
+	private TrainService trainService;
+	
+	@PostMapping
+	public ResponseEntity<String> addTrain(Train train){
+		trainService.addTrain(train);
+		return ResponseEntity.ok().body("Train Added");
+	}
+	
+	@GetMapping
+	public ResponseEntity<List<Train>> getAllTrains(){
+		List<Train> allTrain = trainService.getAll();
+		return ResponseEntity.ok().body(allTrain);
+	}
+	@GetMapping("/{src}/{dest}/{date}")
+	public ResponseEntity<List<Train>> getTrains(String src,String dest,String date){
+		List<Train> byLocation = trainService.getByLocation(src, dest, LocalDate.parse(date));
+		return ResponseEntity.ok().body(byLocation);
+	}
+	
+	@GetMapping("/{number}")
+	public ResponseEntity<Train> getTrainsByTrainNumber(String number){
+		Train train = trainService.getTrain(number);
+		return ResponseEntity.ok().body(train);
+	}
+	@PutMapping
+	public ResponseEntity<String> updateTrain(Train train){
+		trainService.updateTrain(train);
+		return ResponseEntity.ok().body("Train updated");
+	}
+	@DeleteMapping
+	public ResponseEntity<String> DeleteTrain(Train train){
+		trainService.deleteTrain(train);
+		return ResponseEntity.ok().body("Train deleted");
+	}	
+}

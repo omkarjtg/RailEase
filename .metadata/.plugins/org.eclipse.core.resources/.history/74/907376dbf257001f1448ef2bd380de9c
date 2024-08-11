@@ -1,0 +1,5 @@
+package com.trainservice.repository;
+
+public interface TrainRepository {
+
+}

@@ -1,0 +1,16 @@
+package com.trainservice.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.trainservice.service.TrainService;
+
+@RestController
+@RequestMapping("/train")
+public class TrainController {
+	
+	@Autowired
+	private TrainService trainService;
+
+}

@@ -1,0 +1,46 @@
+package com.trainservice.service;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import com.trainservice.entity.Train;
+
+public class TrainServiceImpl implements TrainService {
+
+	@Override
+	public String addTrain(Train t) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Train> getAll() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Train> getByLocation(String source, String destination, LocalDate date) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Train getTrain(String trainNumber) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String updateTrain(Train t) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String deleteTrain(Train t) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}
