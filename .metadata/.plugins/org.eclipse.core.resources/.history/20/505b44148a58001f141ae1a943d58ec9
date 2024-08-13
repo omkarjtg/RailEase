@@ -1,0 +1,25 @@
+package com.trainservice.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+
+public class SecurityConfig {
+	
+	 @Bean
+	    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	        http
+	            .csrf(csrf -> csrf.disable()) // Disable CSRF protection
+	            .authorizeHttpRequests(authz -> authz
+	            		.requestMatchers("/user/add").permitAll()
+	            		.requestMatchers("/test").hasRole("ADMIN")
+	                .anyRequest().authenticated() // All requests require authentication
+	            )
+	            .httpBasic(httpBasic -> httpBasic // Enable HTTP Basic Authentication
+	                    .realmName("myrealm") // Set the realm name (customize as needed)
+	                ); // Enable HTTP Basic Authentication
+
+	        return http.build();
+	    }
+
+}

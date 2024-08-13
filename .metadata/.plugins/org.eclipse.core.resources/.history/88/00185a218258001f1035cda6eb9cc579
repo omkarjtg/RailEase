@@ -1,0 +1,12 @@
+package com.userservice.utils;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class JwtProvider {
+	
+//	private String createToken(String subject) {
+//		
+//	}
+
+}

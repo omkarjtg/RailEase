@@ -1,0 +1,17 @@
+package com.trainservice.service;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+
+import com.trainservice.entity.User;
+
+@FeignClient(url = "http://localhost:8085",name="user-service")
+public interface UserService {
+	
+	@GetMapping("/user")
+	User validateToken(@RequestHeader("Authorization") String basic);
+
+}

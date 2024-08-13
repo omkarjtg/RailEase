@@ -19,13 +19,14 @@ public class SecurityConfig  {
 	
 	@Autowired
 	private CustomUserDetailService customUserDetailService;
-	
-	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable()) // Disable CSRF protection
             .authorizeHttpRequests(authz -> authz
             		.requestMatchers("/user/add").permitAll()
+            		.requestMatchers("/test").hasRole("ADMIN")
                 .anyRequest().authenticated() // All requests require authentication
             )
             .httpBasic(httpBasic -> httpBasic // Enable HTTP Basic Authentication
@@ -34,14 +35,14 @@ public class SecurityConfig  {
 
         return http.build();
     }
-	
-	@Bean
-	public AuthenticationManager authManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+
+    @Bean
+    AuthenticationManager authManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
 		return authenticationConfiguration.getAuthenticationManager();
 	}
-	
-	@Bean
-    public PasswordEncoder passwordEncoder() {
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(); // Using BCrypt for hashing passwords
     }
 

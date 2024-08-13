@@ -1,0 +1,36 @@
+package com.trainservice.config;
+
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+
+import com.trainservice.filter.JwtAuthenticationFilter;
+
+@Configuration
+public class FilterConfig {
+
+//	@Bean
+//    public FilterRegistrationBean<JwtAuthenticationFilter> myCustomFilter() {
+//        FilterRegistrationBean<JwtAuthenticationFilter> registrationBean = new FilterRegistrationBean<>();
+//        
+//        registrationBean.setFilter(new JwtAuthenticationFilter());
+//        registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE); // Ensure it's executed before security filters
+//        
+//        return registrationBean;
+//    }
+	@Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter();  // Spring will manage this bean and inject dependencies
+    }
+
+    @Bean
+    public FilterRegistrationBean<JwtAuthenticationFilter> myCustomFilter(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        FilterRegistrationBean<JwtAuthenticationFilter> registrationBean = new FilterRegistrationBean<>();
+        
+        registrationBean.setFilter(jwtAuthenticationFilter);  // Use the Spring-managed bean
+        registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);  // Ensure it's executed before security filters
+        
+        return registrationBean;
+    }
+}
