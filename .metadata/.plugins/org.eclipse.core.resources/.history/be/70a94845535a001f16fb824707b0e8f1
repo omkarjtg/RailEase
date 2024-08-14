@@ -35,7 +35,7 @@ public class UserContoller {
 	
 	
 	@PostMapping("/add")
-	public User addUser(@RequestBody User usr) {
+	public ResponseEntity<String> addUser(@RequestBody User usr) {
 		List<Role> roles = new ArrayList<>();
 		roles.add(new Role("ROLE_USER"));
 		if(usr.getIsAdmin())
@@ -43,8 +43,8 @@ public class UserContoller {
 		usr.setPassword(passwordEncoder.encode(usr.getPassword()));
 		usr.setRoles(roles);
 		userRepository.save(usr);
-//		String jwt = jwtProvider.createToken(usr.getUsername());
-		return usr;
+		String jwt = jwtProvider.createToken(usr.getUsername());
+		return new ResponseEntity<>(jwt,HttpStatus.OK);
 	}
 	
 	@GetMapping
