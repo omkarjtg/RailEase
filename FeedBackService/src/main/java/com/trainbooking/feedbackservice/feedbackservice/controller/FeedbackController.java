@@ -15,14 +15,20 @@ public class FeedbackController {
     private FeedbackService feedbackService;
 
     @PostMapping
-    public ResponseEntity<Feedback> submitFeedback(@RequestBody Feedback feedback) {
-        Feedback savedFeedback = feedbackService.saveFeedback(feedback);
-        return ResponseEntity.ok(savedFeedback);
+    public String submitFeedback(@RequestBody Feedback feedback) {
+      feedbackService.saveFeedback(feedback);
+        return "saved correctly";
     }
 
     @GetMapping
     public ResponseEntity<List<Feedback>> getAllFeedback() {
         List<Feedback> feedbacks = feedbackService.getAllFeedback();
         return ResponseEntity.ok(feedbacks);
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteFeedbackById(@PathVariable Long id) {
+        feedbackService.deleteFeedbackById(id);
+        return "deleted Succesfully for id:"+id;
     }
 }
