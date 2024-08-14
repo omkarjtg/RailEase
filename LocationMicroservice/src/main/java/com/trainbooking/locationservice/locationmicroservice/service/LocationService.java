@@ -9,6 +9,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LocationService {
@@ -29,8 +30,18 @@ public class LocationService {
         return locationRepository.save(location);
     }
 
-    public void deleteLocation(Long id) {
+
+    public Optional<Location> findLocationById(Long id) {
+        return locationRepository.findById(id);
+    }
+
+    public void deleteLocationById(Long id) {
         locationRepository.deleteById(id);
     }
+
+    public void deleteAllLocations() {
+        locationRepository.deleteAll();
+    }
+
 
 }
