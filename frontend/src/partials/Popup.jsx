@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import Login from './LoginPage';
-import Register from './RegisterPage';
+import Login from './Login';
+import Register from './Register';
 import './popup.css'
 
 const Popup = ({ show, onClose }) => {

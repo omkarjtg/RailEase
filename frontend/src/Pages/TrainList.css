@@ -1,0 +1,21 @@
+
+.list-group-item {
+    border: 1px solid #ddd; /* Light border for list items */
+    border-radius: 0.25rem; /* Rounded corners */
+    padding: 1rem; /* Padding inside list items */
+    background-color: #f8f9fa; /* Light background color */
+}
+
+.list-group-item h5 {
+    font-size: 1.25rem; /* Larger font size for train name */
+    font-weight: bold; /* Bold text for the train name */
+}
+
+.list-group-item h6 {
+    font-size: 1rem; /* Font size for the train number */
+    color: #6c757d; /* Muted color for the train number */
+}
+
+.list-group-item p {
+    font-size: 0.9rem; /* Slightly smaller font size for details */
+}

@@ -40,13 +40,15 @@
 .read-the-docs {
   color: #888;
 } */
-#root {
-  background-image: url('/vande-bharat-1713270829.jpg'); /* Ensure the path is correct */
-  background-size: cover; /* Adjust the background size to cover the element */
-  background-position: center; /* Center the background image */
-  background-repeat: no-repeat; /* Prevent background image from repeating */
-}
 
+body {
+  background-image: url('/vande-bharat-1713270829.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin: 0;
+  padding: 0;
+}
 
 #form-container {
   width: 50%; /* Adjust this value as needed */
@@ -72,4 +74,8 @@ html, body {
   min-height: 100vh;
   display: flex; 
   flex-direction: column; 
+}
+
+.no-background {
+  background-image: none !important;
 }

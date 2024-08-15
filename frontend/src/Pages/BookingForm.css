@@ -1,0 +1,46 @@
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+#btn4 {
+    background-color: rgb(95, 76, 142);
+    margin-bottom: 20px;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+
+#btn4:hover {
+    background-color: rgba(95, 76, 142, 0.823);
+}
+
+#btn5 {
+    background-color: rgb(95, 76, 142);
+}
+
+#btn5:hover {
+    background-color: rgba(95, 76, 142, 0.823);
+}
+
+#bookingForm {
+    background-color: #fff;
+    margin-top: 12px;
+    margin-bottom: 60px;
+    width: 70vw;
+    height: 70vh; /* Adjusted height */
+    border-radius: 25px;
+}
+
+#bookingForm:hover {
+    box-shadow: black;
+    box-sizing: border-box;
+}
+
+#div1 {
+    margin-top: 10px;
+}
+
+input {
+    margin-right: 5px;
+}
