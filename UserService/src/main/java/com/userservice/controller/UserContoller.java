@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,6 +25,7 @@ import com.userservice.utils.JwtProvider;
 
 @RestController
 @RequestMapping("/user")
+@CrossOrigin("http://localhost:5173")
 public class UserContoller {
 	
 	@Autowired
@@ -53,6 +55,9 @@ public class UserContoller {
 		User usrInDb = userRepository.findByUsername(authentication.getName());
 		return usrInDb;
 	}
+	
+	
+	
 //	@GetMapping("/validate")
 //	public ResponseEntity<UserDetails> validateToken() {
 //		SecurityContextHolder.getContext().

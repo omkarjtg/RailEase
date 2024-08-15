@@ -13,7 +13,6 @@
     <fullyQualifiedTypeName name="org.springframework.security.authentication.AuthenticationManager"/>
     <fullyQualifiedTypeName name="org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration"/>
     <fullyQualifiedTypeName name="com.userservice.security.CustomUserDetailService"/>
-    <fullyQualifiedTypeName name="com.userservice.entity.User"/>
     <fullyQualifiedTypeName name="org.springframework.security.crypto.password.PasswordEncoder"/>
     <fullyQualifiedTypeName name="com.userservice.repository.UserRepository"/>
     <fullyQualifiedTypeName name="jakarta.persistence.Id"/>
@@ -60,4 +59,5 @@
     <fullyQualifiedTypeName name="com.trainservice.entity.User"/>
     <fullyQualifiedTypeName name="java.util.List"/>
     <fullyQualifiedTypeName name="org.springframework.security.core.authority.SimpleGrantedAuthority"/>
+    <fullyQualifiedTypeName name="com.userservice.entity.User"/>
 </qualifiedTypeNameHistroy>
