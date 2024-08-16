@@ -38,11 +38,11 @@ public class TrainController {
 		List<Train> allTrain = trainService.getAll();
 		return ResponseEntity.ok().body(allTrain);
 	}
-	@GetMapping("/{src}/{dest}/{date}")
-	public ResponseEntity<List<Train>> getTrains(String src,String dest,String date){
-		List<Train> byLocation = trainService.getByLocation(src, dest, LocalDate.parse(date));
-		return ResponseEntity.ok().body(byLocation);
-	}
+//	@GetMapping("/{src}/{dest}/{date}")
+//	public ResponseEntity<List<Train>> getTrains(String src,String dest,String date){
+//		List<Train> byLocation = trainService.getByLocation(src, dest, LocalDate.parse(date));
+//		return ResponseEntity.ok().body(byLocation);
+//	}
 	
 	@GetMapping("/{number}")
 	public ResponseEntity<Train> getTrainsByTrainNumber(String number){
@@ -60,4 +60,9 @@ public class TrainController {
 		trainService.deleteTrain(id);
 		return ResponseEntity.ok().body("Train deleted");
 	}	
+	
+//	@GetMapping("/schedule/{number}/{date}")
+//	public ResponseEntity<String> scheduleTrain(@PathVariable String number, String date))
+		
+//	}
 }

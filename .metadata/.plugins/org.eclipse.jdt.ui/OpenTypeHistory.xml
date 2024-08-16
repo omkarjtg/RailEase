@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <typeInfoHistroy>
+    <typeInfo handle="=TrainService/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.trainservice.service{TrainService.java[TrainService" modifiers="513" timestamp="1723798213749"/>
+    <typeInfo handle="=TrainService/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.trainservice.service{ScheduledTrainService.java[ScheduledTrainService" modifiers="513" timestamp="1723800204487"/>
     <typeInfo handle="=TrainService/C:\/Users\/NITIN\/.m2\/repository\/org\/springframework\/data\/spring-data-jpa\/3.3.2\/spring-data-jpa-3.3.2.jar=/maven.pomderived=/true=/=/maven.groupId=/org.springframework.data=/=/maven.artifactId=/spring-data-jpa=/=/maven.version=/3.3.2=/=/maven.scope=/compile=/=/maven.pomderived=/true=/&lt;org.springframework.data.jpa.repository(JpaRepository.class[JpaRepository" modifiers="1537" timestamp="1722937109900"/>
-    <typeInfo handle="=TrainService/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.trainservice.service{TrainService.java[TrainService" modifiers="513" timestamp="1723392687917"/>
 </typeInfoHistroy>

@@ -1,6 +1,6 @@
 package com.trainservice.entity;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,7 +21,6 @@ public class Train {
 	private String source;
 	private String destination;
 	private String price;
-	private Date schedule;
 	
 	public Long getId() {
 		return id;
@@ -71,13 +70,5 @@ public class Train {
 	public void setPrice(String price) {
 		this.price = price;
 	}
-	public Date getSchedule() {
-		return schedule;
-	}
-	public void setSchedule(Date schedule) {
-		this.schedule = schedule;
-	}
-	
-	
 
 }

@@ -9,9 +9,10 @@ public interface TrainService {
 	
 	String addTrain(Train t);
 	List<Train> getAll();
-	List<Train> getByLocation(String source,String destination,LocalDate date);
+//	List<Train> getByLocation(String source,String destination,LocalDate date);
 	Train getTrain(String trainNumber);
 	String updateTrain(Train t);
 	String deleteTrain(Long id);
+	
 
 }

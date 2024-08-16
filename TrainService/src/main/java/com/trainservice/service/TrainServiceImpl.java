@@ -30,13 +30,6 @@ public class TrainServiceImpl implements TrainService {
 	public List<Train> getAll() {
 		return trainRepository.findAll();
 	}
-
-	@Override
-	public List<Train> getByLocation(String source, String destination, LocalDate date) {
-		
-		return trainRepository.findBySourceAndDestinationAndSchedule(source, destination, Date.valueOf(date));
-	}
-
 	@Override
 	public Train getTrain(String trainNumber) {
 		return trainRepository.findByNumber(trainNumber);

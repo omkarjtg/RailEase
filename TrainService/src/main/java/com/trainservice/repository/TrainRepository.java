@@ -9,6 +9,5 @@ import com.trainservice.entity.Train;
 
 public interface TrainRepository extends JpaRepository<Train, Long> {
 	
-	List<Train> findBySourceAndDestinationAndSchedule(String source,String dest, Date date);
 	Train findByNumber(String number);
 }
