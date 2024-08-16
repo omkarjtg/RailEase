@@ -1,0 +1,58 @@
+h2
+{
+    text-align: center;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    
+}
+
+#btn4
+{
+    background-color: rgb(144, 105, 236);
+    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 10px 10px 10px 10px;
+    font-size: 17px;
+    color: #fff;
+    border-radius: 5px;
+    border: none;
+ 
+}
+#btn4:hover
+{
+    background-color: rgba(77, 69, 49, 0.823);
+}
+#btn5
+{
+    background-color: rgb(144, 105, 236);
+}
+#btn5:hover
+{
+    background-color: rgba(77, 69, 49, 0.823);
+}
+#bookingForm
+{
+    background-color:#fff;
+    margin-top: 12px;
+    margin-bottom: 50px;
+    width:70vw;
+    max-height: 78vh;
+    border-radius: 25px;
+}
+#bookingForm:hover
+{
+    box-shadow: black;
+    box-sizing: border-box;
+}
+#div1
+{
+    margin-top: 10px;
+    
+}
+input{
+    margin-right: 5px;
+    
+}
+
