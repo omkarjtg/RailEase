@@ -17,8 +17,5 @@ public interface TrainService {
 	@GetMapping("/scheduledTrain/updateSeat/{id}/{seats}")
 	public String updateSeats(@PathVariable Long id, @PathVariable Integer seats);
 	
-//	@GetMapping("/scheduledTrain")
-//	public Object getAll();
-	
 	
 }

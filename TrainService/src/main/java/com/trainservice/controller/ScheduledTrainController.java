@@ -34,9 +34,14 @@ public class ScheduledTrainController {
 		return scheduledTrainService.getSeats(seatsDto.getNumber(), seatsDto.getDate());
 	}
 	
+	@GetMapping("/{src}/{dest}/{date}")
+	public ResponseEntity<List<ScheduledTrain>> getTrains(String src,String dest,String date){
+		List<ScheduledTrain> byLocation = scheduledTrainService.getByLocation(src, dest, date);
+		return ResponseEntity.ok().body(byLocation);
+	}
+	
 	@GetMapping
 	public List<ScheduledTrain> getAll(){
-		System.out.println("HEEHEE");
 		return scheduledTrainService.getAll();
 	}
 	@GetMapping("/{date}")

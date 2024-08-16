@@ -19,20 +19,18 @@ public class BookingServiceImpl implements BookingService {
 	@Autowired
 	private TrainService trainService;
 
+	
+	// 10 - 5
+	// 5- cnf
+	// 5- wait
 	@Override
-	public ResponseEntity<String> createBooking( Booking booking) {
-		System.out.println("Reached Here 1");
+	public synchronized ResponseEntity<String> createBooking( Booking booking) {
 		String bookingId = UUID.randomUUID().toString();
-//		System.out.println(trainService.getAll().getClass());
-		System.out.println("Reached Here 2");
 		GetSeatsDto seatDto = new GetSeatsDto(booking.getTrainNumber(),booking.getSchedule());
 		Integer seats = trainService.getSeats(seatDto);
-		System.out.println("Reached Here 2.5");
 		if(booking.getSeats()<=seats) {
 			booking.setStatus("Confirmed");
-			System.out.println("Reached Here 2.7");
 			bookingRepository.save(booking);
-			System.out.println("Reached Here 3");
 			trainService.updateSeats(booking.getScheduleTrainId(), booking.getSeats());
 		}
 		else {

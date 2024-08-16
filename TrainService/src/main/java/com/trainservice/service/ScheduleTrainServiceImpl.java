@@ -46,4 +46,9 @@ public class ScheduleTrainServiceImpl implements ScheduledTrainService {
 		return "Seats Updated";
 	}
 
+	@Override
+	public List<ScheduledTrain> getByLocation(String src, String dest, String date) {
+		return scheduledTrainRepository.findBySourceAndDestinationAndSchedule(src, dest, date);
+	}
+
 }

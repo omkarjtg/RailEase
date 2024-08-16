@@ -10,5 +10,6 @@ public interface ScheduledTrainRepository extends JpaRepository<ScheduledTrain, 
 	
 	ScheduledTrain findByNumberAndSchedule(String number,String date);
 	List<ScheduledTrain> findBySchedule(String date);
+	List<ScheduledTrain> findBySourceAndDestinationAndSchedule(String src,String dest,String date);
 
 }

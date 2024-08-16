@@ -13,5 +13,6 @@ public interface ScheduledTrainService {
 	List<ScheduledTrain> getAll();
 	List<ScheduledTrain> getAllByDate(String date);
 	String updateSeats(Long id, Integer seats);
+	List<ScheduledTrain> getByLocation(String src, String dest, String date);
 
 }
