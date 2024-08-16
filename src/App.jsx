@@ -10,6 +10,7 @@ import Aboutus from './partials/Aboutus';
 import MyBookings from './partials/MyBookings';
 import Home from './partials/Home';
 import ViewScheduledTrain from './partials/ViewScheduledTrain';
+import Locations from './partials/Locations';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path='/mybookings' element={<MyBookings/>}/>
           <Route path='/Home' element={<Home/>}/>
           <Route path='/schedule' element={<ViewScheduledTrain/>}/>
+          <Route path='/alllocations'element={<Locations/>}/>
 
         </Routes>
       </Router>

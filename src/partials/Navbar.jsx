@@ -27,6 +27,9 @@ export default function Navbar() {
                             
                         </ul>
                         <ul className="navbar-nav ms-auto">
+                            <li className="nav-item">
+                            <a className="nav-link active" aria-current="page" href="/alllocations">Locations</a>
+                            </li>
                         <li className="nav-item">
                             <a className="nav-link active" aria-current="page" href="/schedule">Scheduled Train</a>
                             </li>
