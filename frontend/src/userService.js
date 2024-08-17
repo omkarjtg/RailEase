@@ -21,7 +21,7 @@ export const registerUser = async (userData) => {
 
 export const getCurrentUser = async () => {
   try {
-      const response = await api.get('/current'); // Adjust endpoint if needed
+      const response = await api.get('/'); // Adjust endpoint if needed
       return response.data;
   } catch (error) {
       // console.error('Error fetching current user:', error);

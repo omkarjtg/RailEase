@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { submitBooking } from '../trainService.js';
 
 export default function Results() {
     const location = useLocation();
+    const navigate = useNavigate();
     const { From, To, Date } = location.state || {};
 
     const [trains, setTrains] = useState([]);
@@ -37,6 +38,20 @@ export default function Results() {
     const formatDate = (date) => {
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         return new Date(date).toLocaleDateString(undefined, options);
+    };
+
+    const handleBook = (train) => {
+        // Assuming you want to pass booking details to the MockBookedPage
+        navigate('/booked', { 
+            state: {
+                bookingId: '12345', // Example booking ID
+                name: 'John Doe', // Example name
+                from: train.source,
+                to: train.destination,
+                date: Date,
+                price: train.price
+            } 
+        });
     };
 
     return (
@@ -90,10 +105,14 @@ export default function Results() {
                                     <strong>Price:</strong> ₹{train.price}
                                 </p>
                                 <div className='text-center'>
-                                <button className='btn btn-primarys'>Book</button>
+                                    <button 
+                                        className='btn btn-primary'
+                                        onClick={() => handleBook(train)}
+                                    >
+                                        Book
+                                    </button>
                                 </div>
                             </li>
-                          
                         ))}
                     </ul>
                 ) : (

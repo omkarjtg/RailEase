@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Location.css';
 import AddLocationForm from './AddLocation';
 import { getAllLocations, deleteLocation } from '../locationService';
@@ -17,9 +17,9 @@ const AllLocations = () => {
     const fetchLocations = async () => {
       try {
         const data = await getAllLocations();
-        console.log('Fetched locations:', data); // Debugging line
+        console.log('Fetched locations:', data);
         if (Array.isArray(data)) {
-          setLocations(data); // Set state only if data is an array
+          setLocations(data);
         } else {
           console.error('Unexpected data format:', data);
         }

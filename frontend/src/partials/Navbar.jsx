@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Login from './Login';
 import Register from './Register';
-import { getCurrentUser } from '../userService'; 
+import { getCurrentUser } from '../userService';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -13,7 +14,7 @@ export default function Navbar() {
                 const currentUser = await getCurrentUser();
                 setUser(currentUser);
             } catch (error) {
-                // console.error('Error fetching user:', error);
+                // Handle error if necessary
             }
         };
 
@@ -22,11 +23,14 @@ export default function Navbar() {
 
     const handleLogout = () => {
         localStorage.removeItem('jwtToken');
-        window.location.href = '/login'; // Redirect to login or home page
+        window.location.href = '/'; // Redirect to login or home page
     };
 
-    const handleLoginSuccess = (loggedInUser) => {
-        setUser(loggedInUser);
+    const handleLoginSuccess = (userData) => {
+        const token = userData.token;
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
     };
 
     const handleCloseModal = () => {
@@ -41,40 +45,69 @@ export default function Navbar() {
         <>
             <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
                 <div className="container-fluid">
-                    <a href="/"><img src="/secondry-logo.png" alt="" /></a>
-                    <a className="navbar-brand ms-2" href="/">RailEase</a>
+                    <Link to="/"><img src="/secondry-logo.png" alt="Logo" /></Link>
+                    <Link className="navbar-brand ms-2" to="/">RailEase</Link>
                     <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                         <span className="navbar-toggler-icon"></span>
                     </button>
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav">
                             <li className="nav-item">
-                                <a className="nav-link active" aria-current="page" href="/book">Book Ticket</a>
+                                <Link className="nav-link active" to="/book">Book Ticket</Link>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link active" aria-current="page" href="/trains">Trains</a>
+                                <Link className="nav-link active" to="/trains">Trains</Link>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link active" aria-current="page" href="/aboutUs">About Us</a>
+                                <Link className="nav-link active" to="/scheduled">Scheduled Trains</Link>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link active" aria-current="page" href="/feedback">Feedback</a>
+                                <Link className="nav-link active" to="/aboutUs">About Us</Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link className="nav-link active" to="/feedback">Feedback</Link>
                             </li>
                         </ul>
                         <ul className="navbar-nav ms-auto">
                             {user ? (
                                 <>
-                                    <li className="nav-item">
-                                        <span className="nav-link text-white">Welcome, {user.username}</span>
-                                    </li>
-                                    <li className="nav-item ms-2">
-                                        <button
-                                            id='btn3'
-                                            className="btn btn-danger"
-                                            onClick={handleLogout}
+                                    <li className="nav-item dropdown">
+                                        <span
+                                            className="nav-link dropdown-toggle text-white"
+                                            id="navbarDropdown"
+                                            role="button"
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false"
                                         >
-                                            Logout
-                                        </button>
+                                            Welcome, {user.username}
+                                        </span>
+                                        <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
+                                            {user.isAdmin ? (
+                                                <>
+                                                    <li>
+                                                        <Link className="dropdown-item" to="/addTrains">Add Trains</Link>
+                                                    </li>
+                                                    <li>
+                                                        <Link className="dropdown-item" to="/location">Locations</Link>
+                                                    </li>
+                                                </>
+                                            ) : (
+                                                <li>
+                                                    <Link className="dropdown-item" to="/myBookings">My Bookings</Link>
+                                                </li>
+                                            )}
+                                            <li>
+                                                <hr className="dropdown-divider" />
+                                            </li>
+                                            <li>
+                                                <button
+                                                    className="dropdown-item"
+                                                    onClick={handleLogout}
+                                                >
+                                                    Logout
+                                                </button>
+                                            </li>
+                                        </ul>
                                     </li>
                                 </>
                             ) : (
@@ -105,8 +138,8 @@ export default function Navbar() {
                     </div>
                 </div>
             </nav>
-            <Login onLoginSuccess={handleLoginSuccess} onClose={handleCloseModal} /> 
-            <Register onClose={handleCloseModal} /> 
+            <Login onLoginSuccess={handleLoginSuccess} onClose={handleCloseModal} />
+            <Register onClose={handleCloseModal} />
         </>
     );
 }
