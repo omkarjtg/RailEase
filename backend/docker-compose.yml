@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  apigateway:
+    build: ./ApiGateway
+    ports:
+      - "9090:9090"
+    depends_on:
+      - locationmicroservice
+      - trainservice
+      - userservice
+      - bookingservice
+      - feedbackservice
+
+  locationmicroservice:
+    build: ./LocationMicroservice
+    ports:
+      - "8082:8080"
+
+  trainservice:
+    build: ./TrainService
+    ports:
+      - "8080:8080"
+
+  userservice:
+    build: ./UserService
+    ports:
+      - "8081:8080" 
+
+  bookingservice:
+    build: ./BookingService
+    ports:
+      - "8084:8080"
+
+  feedbackservice:
+    build: ./FeedBackService
+    ports:
+      - "8085:8080"
