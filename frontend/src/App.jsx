@@ -12,6 +12,7 @@ import AllLocations from './Pages/Locations';
 import ScheduledTrains from './Pages/ScheduledTrain';
 import Search from './partials/SearchResults';
 import MockBookedPage from './Pages/MockBookedPage';
+import HomePage from './Pages/Home';
 
 function App() {
   const location = useLocation();
@@ -30,6 +31,7 @@ function App() {
     <>
       <Navbar />
       <Routes>
+        <Route path="/" element={<HomePage />} />
         <Route path="/book" element={<BookingForm />} />
         <Route path="/popup" element={<Popup />} />
         <Route path="/results" element={<Search />} />

@@ -1,44 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Login from './Login';
 import Register from './Register';
-import { getCurrentUser } from '../userService';
+import { AuthContext } from '../AuthContext';
 import './Navbar.css';
 
 export default function Navbar() {
-    const [user, setUser] = useState(null);
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const currentUser = await getCurrentUser();
-                setUser(currentUser);
-            } catch (error) {
-                // Handle error if necessary
-            }
-        };
-
-        fetchUser();
-    }, []);
+    const { user, logout } = useContext(AuthContext);
+    const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
+    const [isLoginModalOpen, setLoginModalOpen] = useState(false);
 
     const handleLogout = () => {
-        localStorage.removeItem('jwtToken');
-        window.location.href = '/'; // Redirect to login or home page
-    };
-
-    const handleLoginSuccess = (userData) => {
-        const token = userData.token;
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(userData));
-        setUser(userData);
-    };
-
-    const handleCloseModal = () => {
-        const modalElement = document.getElementById('loginModal');
-        const modal = bootstrap.Modal.getInstance(modalElement);
-        if (modal) {
-            modal.hide();
-        }
+        logout();
+        window.location.href = '/';
     };
 
     return (
@@ -70,54 +44,51 @@ export default function Navbar() {
                         </ul>
                         <ul className="navbar-nav ms-auto">
                             {user ? (
-                                <>
-                                    <li className="nav-item dropdown">
-                                        <span
-                                            className="nav-link dropdown-toggle text-white"
-                                            id="navbarDropdown"
-                                            role="button"
-                                            data-bs-toggle="dropdown"
-                                            aria-expanded="false"
-                                        >
-                                            Welcome, {user.username}
-                                        </span>
-                                        <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                                            {user.isAdmin ? (
-                                                <>
-                                                    <li>
-                                                        <Link className="dropdown-item" to="/addTrains">Add Trains</Link>
-                                                    </li>
-                                                    <li>
-                                                        <Link className="dropdown-item" to="/location">Locations</Link>
-                                                    </li>
-                                                </>
-                                            ) : (
+                                <li className="nav-item dropdown">
+                                    <span
+                                        className="nav-link dropdown-toggle text-white"
+                                        id="navbarDropdown"
+                                        role="button"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                    >
+                                        Welcome, {user.username}
+                                    </span>
+                                    <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
+                                        {user.isAdmin ? (
+                                            <>
                                                 <li>
-                                                    <Link className="dropdown-item" to="/myBookings">My Bookings</Link>
+                                                    <Link className="dropdown-item" to="/addTrains">Add Trains</Link>
                                                 </li>
-                                            )}
+                                                <li>
+                                                    <Link className="dropdown-item" to="/location">Locations</Link>
+                                                </li>
+                                            </>
+                                        ) : (
                                             <li>
-                                                <hr className="dropdown-divider" />
+                                                <Link className="dropdown-item" to="/myBookings">My Bookings</Link>
                                             </li>
-                                            <li>
-                                                <button
-                                                    className="dropdown-item"
-                                                    onClick={handleLogout}
-                                                >
-                                                    Logout
-                                                </button>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                </>
+                                        )}
+                                        <li>
+                                            <hr className="dropdown-divider" />
+                                        </li>
+                                        <li>
+                                            <button
+                                                className="dropdown-item"
+                                                onClick={handleLogout}
+                                            >
+                                                Logout
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </li>
                             ) : (
                                 <>
                                     <li className="nav-item">
                                         <button
                                             id='btn1'
                                             className="btn btn-warning"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#loginModal"
+                                            onClick={() => setLoginModalOpen(true)}
                                         >
                                             Login
                                         </button>
@@ -126,8 +97,7 @@ export default function Navbar() {
                                         <button
                                             id='btn2'
                                             className="btn btn-light"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#registerModal"
+                                            onClick={() => setRegisterModalOpen(true)}
                                         >
                                             Register
                                         </button>
@@ -138,8 +108,30 @@ export default function Navbar() {
                     </div>
                 </div>
             </nav>
-            <Login onLoginSuccess={handleLoginSuccess} onClose={handleCloseModal} />
-            <Register onClose={handleCloseModal} />
+            {isLoginModalOpen && (
+                <Login
+                    onClose={() => setLoginModalOpen(false)}
+                    onLoginSuccess={(userData) => {
+                        setLoginModalOpen(false);
+                        const { login } = useContext(AuthContext);
+                        login(userData);  // Update the auth state
+                    }}
+                    onRegisterClick={() => {
+                        setLoginModalOpen(false);
+                        setRegisterModalOpen(true);
+                    }}
+                />
+            )}
+
+            {isRegisterModalOpen && (
+                <Register
+                    onClose={() => setRegisterModalOpen(false)}
+                    onLoginClick={() => {
+                        setRegisterModalOpen(false);
+                        setLoginModalOpen(true);
+                    }}
+                />
+            )}
         </>
     );
 }
