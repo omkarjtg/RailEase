@@ -5,7 +5,7 @@ import { getAllLocations, deleteLocation } from '../locationService';
 
 const AllLocations = () => {
   const [locations, setLocations] = useState([]);
-  const [showModal, setShowModal] = useState(false);
+  const [flashMessage, setFlashMessage] = useState('');
 
   const user = JSON.parse(localStorage.getItem('user'));
 
@@ -35,15 +35,31 @@ const AllLocations = () => {
     try {
       await deleteLocation(id);
       setLocations(locations.filter(location => location.id !== id));
+      setFlashMessage('Location removed successfully!');
     } catch (error) {
       console.error(`Error removing location with ID: ${id}`, error);
+      setFlashMessage('Failed to remove location.');
     }
+  };
+
+  const handleFormSuccess = () => {
+    const fetchLocations = async () => {
+      try {
+        const data = await getAllLocations();
+        setLocations(data);
+      } catch (error) {
+        console.error('Error fetching locations:', error);
+      }
+    };
+
+    fetchLocations();
   };
 
   return (
     <div id="container">
       <h1>Locations</h1>
-      <AddLocationForm />
+      {flashMessage && <div className="alert alert-info">{flashMessage}</div>}
+      <AddLocationForm onSuccess={handleFormSuccess} />
 
       <table className="table table-bordered table-hover">
         <thead>

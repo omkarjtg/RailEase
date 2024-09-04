@@ -12,15 +12,15 @@ import jakarta.persistence.Id;
 public class Train {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
 	private String name;
 	private String number;
-	private Integer totalCoach;
-	private Integer seatPerCoach;
 	private String source;
 	private String destination;
+	private Integer totalCoach;
+	private Integer seatPerCoach;
 	private String price;
 	private Date schedule;
 	private Time departureTime;

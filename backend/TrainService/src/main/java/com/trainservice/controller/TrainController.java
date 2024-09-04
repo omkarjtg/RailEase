@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,9 +27,9 @@ public class TrainController {
     private TrainService trainService;
     
     @PostMapping
-    public ResponseEntity<String> addTrain(@RequestBody Train train){
-        trainService.addTrain(train);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Train Added");
+    public ResponseEntity<String> addTrain(@RequestBody Train train) {
+        String response = trainService.addTrain(train);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
     
     @GetMapping
@@ -56,9 +55,9 @@ public class TrainController {
     }
     
     @PutMapping
-    public ResponseEntity<String> updateTrain(@RequestBody Train train){
-        trainService.updateTrain(train);
-        return ResponseEntity.ok().body("Train updated");
+    public ResponseEntity<String> updateTrain(@RequestBody Train train) {
+        String response = trainService.updateTrain(train);
+        return ResponseEntity.ok().body(response);
     }
     
     @DeleteMapping("/{id}")

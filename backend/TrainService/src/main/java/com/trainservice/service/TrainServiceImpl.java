@@ -16,16 +16,7 @@ public class TrainServiceImpl implements TrainService {
 	@Autowired
 	private TrainRepository trainRepository;
 
-	@Override
-	public String addTrain(Train train) {
-		Train exists = trainRepository.findByNumber(train.getNumber());
-		if(exists != null) {
-			return "Train exists with this number";
-		}
-		trainRepository.save(train);
-		return "Train added";
-	}
-
+	
 	@Override
 	public List<Train> getAll() {
 		return trainRepository.findAll();
@@ -43,9 +34,22 @@ public class TrainServiceImpl implements TrainService {
 	}
 
 	@Override
-	public String updateTrain(Train t) {
-		trainRepository.save(t);
-		return "Updated";
+	public String addTrain(Train train) {
+	    Train exists = trainRepository.findByNumber(train.getNumber());
+	    if (exists != null) {
+	        return "Train exists with this number";
+	    }
+	    trainRepository.save(train);
+	    return "Train added";
+	}
+
+	@Override
+	public String updateTrain(Train train) {
+	    if (!trainRepository.existsById(train.getId())) {
+	        return "Train not found";
+	    }
+	    trainRepository.save(train);
+	    return "Updated";
 	}
 
 	@Override

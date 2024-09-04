@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getAllTrains, updateTrain, deleteTrain } from '../trainService';
 import TrainSearchForm from '../partials/TrainSearch';
 
 const TrainList = () => {
+    const navigate = useNavigate();
     const [user, setUser] = useState(() => {
         const storedUser = localStorage.getItem('user');
         return storedUser ? JSON.parse(storedUser) : null;
@@ -37,16 +39,15 @@ const TrainList = () => {
         return new Date(date).toLocaleDateString(undefined, options);
     };
 
-    const handleUpdate = async (trainId) => {
-        // Update functionality should be handled in a dedicated form or modal
-        console.log(`Update train with ID: ${trainId}`);
+    const handleUpdate = async (trainNumber) => {
+        navigate(`/update-train/${trainNumber}`);
     };
+
 
     const handleDelete = async (trainId) => {
         try {
             await deleteTrain(trainId);
             setTrains(trains.filter(train => train.id !== trainId));
-            console.log('Train deleted:', trainId);
         } catch (error) {
             console.error('Failed to delete train:', error);
         }
@@ -107,10 +108,11 @@ const TrainList = () => {
                                 <div className="mt-3 d-flex justify-content-between">
                                     <button
                                         className="btn btn-warning me-2"
-                                        onClick={() => handleUpdate(train.id)}
+                                        onClick={() => handleUpdate(train.number)}
                                     >
                                         Update
                                     </button>
+
                                     <button
                                         className="btn btn-danger"
                                         onClick={() => handleDelete(train.id)}

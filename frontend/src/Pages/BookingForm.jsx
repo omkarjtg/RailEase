@@ -1,13 +1,15 @@
+import React, { useState, useEffect } from 'react';
 import { useFormik } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { MdSwapVert } from "react-icons/md";
-import base64 from 'base-64';
 import './BookingForm.css';
-import { submitBooking } from '../trainService.js'
+import { submitBooking } from '../trainService.js';
+import { getAllLocations } from '../locationService';
 
 export default function BookingForm() {
     const navigate = useNavigate();
+    const [locations, setLocations] = useState([]);
     const formik = useFormik({
         initialValues: {
             From: '',
@@ -34,6 +36,19 @@ export default function BookingForm() {
         }
     });
 
+    useEffect(() => {
+        const fetchLocations = async () => {
+            try {
+                const data = await getAllLocations();
+                setLocations(data || []);
+            } catch (error) {
+                console.error('Error fetching locations:', error);
+            }
+        };
+
+        fetchLocations();
+    }, []);
+
     const handleSwap = () => {
         formik.setFieldValue('From', formik.values.To);
         formik.setFieldValue('To', formik.values.From);
@@ -50,14 +65,19 @@ export default function BookingForm() {
                             <div className="col-md-6">
                                 <div className='mb-3 position-relative'>
                                     <label htmlFor="From" className='form-label'>From</label>
-                                    <input
-                                        type="text"
+                                    <select
                                         name="From"
                                         id="From"
-                                        placeholder="Source Station"
                                         className={`form-control ${formik.touched.From && formik.errors.From ? 'is-invalid' : ''}`}
                                         {...formik.getFieldProps('From')}
-                                    />
+                                    >
+                                        <option value="">Select Source Station</option>
+                                        {locations.map(location => (
+                                            <option key={location.id} value={location.city}>
+                                                {location.city}, {location.state}, {location.country}
+                                            </option>
+                                        ))}
+                                    </select>
                                     {formik.touched.From && formik.errors.From ? (
                                         <div className="invalid-feedback">{formik.errors.From}</div>
                                     ) : null}
@@ -69,14 +89,19 @@ export default function BookingForm() {
                                 </div>
                                 <div className='mb-3 position-relative'>
                                     <label htmlFor="To" className='form-label'>To</label>
-                                    <input
-                                        type="text"
+                                    <select
                                         name="To"
                                         id="To"
-                                        placeholder="Destination Station"
                                         className={`form-control ${formik.touched.To && formik.errors.To ? 'is-invalid' : ''}`}
                                         {...formik.getFieldProps('To')}
-                                    />
+                                    >
+                                        <option value="">Select Destination Station</option>
+                                        {locations.map(location => (
+                                            <option key={location.id} value={location.city}>
+                                                {location.city}, {location.state}, {location.country}
+                                            </option>
+                                        ))}
+                                    </select>
                                     {formik.touched.To && formik.errors.To ? (
                                         <div className="invalid-feedback">{formik.errors.To}</div>
                                     ) : null}

@@ -13,6 +13,7 @@ import ScheduledTrains from './Pages/ScheduledTrain';
 import Search from './partials/SearchResults';
 import MockBookedPage from './Pages/MockBookedPage';
 import HomePage from './Pages/Home';
+import UpdateTrainForm from './Pages/UpdateTrainForm';
 
 function App() {
   const location = useLocation();
@@ -37,6 +38,7 @@ function App() {
         <Route path="/results" element={<Search />} />
         <Route path="/trains" element={<TrainList />} />
         <Route path="/addTrains" element={<AddTrains />} />
+        <Route path="/update-train/:trainId" element={<UpdateTrainForm />} />
         <Route path="/aboutUs" element={<AboutUs />} />
         <Route path="/feedback" element={<FeedbackForm />} />
         <Route path="/scheduled" element={<ScheduledTrains />} />
