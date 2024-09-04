@@ -6,7 +6,7 @@ import { AuthContext } from '../AuthContext';
 import './Navbar.css';
 
 export default function Navbar() {
-    const { user, logout } = useContext(AuthContext);
+    const { user, login, logout } = useContext(AuthContext); // Destructure login here
     const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
     const [isLoginModalOpen, setLoginModalOpen] = useState(false);
 
@@ -113,8 +113,7 @@ export default function Navbar() {
                     onClose={() => setLoginModalOpen(false)}
                     onLoginSuccess={(userData) => {
                         setLoginModalOpen(false);
-                        const { login } = useContext(AuthContext);
-                        login(userData);  // Update the auth state
+                        login(userData);  // Use the login function passed via useContext
                     }}
                     onRegisterClick={() => {
                         setLoginModalOpen(false);

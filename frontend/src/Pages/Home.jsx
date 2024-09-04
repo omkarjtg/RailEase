@@ -51,7 +51,7 @@ const HomePage = () => {
                         <div className="testimonial-item">
                             <blockquote>
                                 <p>"With RailEase, I always felt in control of my journey. Their real-time notifications ensured that I was never caught off guard by schedule changes."</p>
-                                <footer>— Nitin Bhaker</footer>
+                                <footer>— Nitin Bhakar</footer>
                             </blockquote>
                         </div>
                         <div className="testimonial-item">
@@ -63,7 +63,7 @@ const HomePage = () => {
                         <div className="testimonial-item">
                             <blockquote>
                                 <p>"Thanks to RailEase, I had a worry-free travel experience. Their real-time updates kept me informed and on schedule throughout my journey."</p>
-                                <footer>— Shushant Singh</footer>
+                                <footer>— Sushant Kumar</footer>
                             </blockquote>
                         </div>
                     </div>
