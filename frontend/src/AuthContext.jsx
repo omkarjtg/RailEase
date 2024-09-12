@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect } from 'react';
 
 export const AuthContext = createContext();
 
@@ -13,10 +13,17 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = (userData) => {
-        const { token } = userData;
-        localStorage.setItem('jwtToken', token);
-        localStorage.setItem('user', JSON.stringify(userData));
-        setUser(userData);
+        // Directly use userData fields since it's already in the correct format
+        const userObj = {
+            username: userData.username,  // "omkar"
+            isAdmin: userData.isAdmin,    // true
+            token: userData.token         // JWT token
+        };
+
+        localStorage.setItem('user', JSON.stringify(userObj));
+        localStorage.setItem('jwtToken', userData.token);
+
+        setUser(userObj);
     };
 
     const logout = () => {

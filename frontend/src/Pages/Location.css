@@ -1,42 +1,60 @@
 #container {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 20px;
-  }
-  h1 {
-    text-align: center;
-    color: #333;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  th{
-    padding:12px 15px;
-    text-Align:left;
-    border-bottom: 1px solid #ddd;
-    background-Color: #442df0;
-    color: #333,
-  }
-  td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-  }
-  tr 
- {
-      background-color: #f9f9f9;
-    }
-  
-     /* {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 20px;
+}
+
+.ErrorWindow {
+  font-weight: 600;
+  font-size: large;
+  border-radius: 20px;
+  display: flex;
+  margin-left: 30%;
+  margin-top: 10%;
+  align-content: center;
+  padding: 5%;
+  height: 200px;
+  width: 500px;
+  background-color: white;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+th {
+  padding: 12px 15px;
+  text-Align: left;
+  border-bottom: 1px solid #ddd;
+  background-Color: #442df0;
+  color: #333,
+}
+
+td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+tr {
+  background-color: #f9f9f9;
+}
+
+/* {
     display: 'flex';
     gap: '10px',
   } */
-  /* #btn1{
+/* #btn1{
     padding: 8px 12px;
     margin: 10px 10px;
     border: none;
@@ -63,11 +81,11 @@
   {
     background-color:rgb(103, 111, 120);
   } */
-  
-  #locationBtnUpdate{
-    color: black;
-  }
 
-  #locationBtnDelete{
-    color: black;
-  }
+#locationBtnUpdate {
+  color: black;
+}
+
+#locationBtnDelete {
+  color: black;
+}

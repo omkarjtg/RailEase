@@ -12,6 +12,15 @@ function AddTrains() {
   const navigate = useNavigate();
   const [flashMessage, setFlashMessage] = useState('');
   const [locations, setLocations] = useState([]);
+
+  const user = JSON.parse(localStorage.getItem('user'));
+
+  if (!user || !user.isAdmin) {
+    return <div className='ErrorWindow'>ERROR 403 FORBIDDEN
+      <br /> Access denied. You must be an admin to view this page.</div>;
+  }
+
+  
   const [formData, setFormData] = useState({
     name: '',
     number: '',

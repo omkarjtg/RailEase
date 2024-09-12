@@ -10,40 +10,38 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.userservice.utils.JwtAuthenticationFilter;
 import com.userservice.security.CustomUserDetailService;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig  {
-	
-	@Autowired
-	private CustomUserDetailService customUserDetailService;
+public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Disable CSRF protection
-            .authorizeHttpRequests(authz -> authz
-            		.requestMatchers("/users/add").permitAll()
-            		.requestMatchers("/test").hasRole("ADMIN")
-                .anyRequest().authenticated() // All requests require authentication
-            )
-            .httpBasic(httpBasic -> httpBasic // Enable HTTP Basic Authentication
-                    .realmName("myrealm") // Set the realm name (customize as needed)
-                ); // Enable HTTP Basic Authentication
+            .csrf().disable()
+            .authorizeHttpRequests()
+                .requestMatchers("/users/add", "/users/login", "/api/public/**").permitAll() // Explicitly allow login
+                .anyRequest().authenticated() // All other requests require authentication
+            .and()
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
+    
     @Bean
-    AuthenticationManager authManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-		return authenticationConfiguration.getAuthenticationManager();
-	}
-
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Using BCrypt for hashing passwords
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
-
+    
 }

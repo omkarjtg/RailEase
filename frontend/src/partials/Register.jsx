@@ -32,20 +32,14 @@ const Register = ({ onClose, onLoginClick }) => {
                     password: values.password,
                     isAdmin: false,
                 };
-
+        
                 const res = await axios.post("http://localhost:8081/users/add", userData);
-                console.log('User registered successfully:', res.data);
-
-                // Assuming `res.data` contains the user data along with the token.
-                const userWithToken = {
-                    ...res.data,
-                    token: res.data.token,
-                };
-
-                login(userWithToken); // Update AuthContext and localStorage with full user data
-
-                onClose(); // Close the modal
-                navigate('/'); // Redirect to homepage
+                const token = res.data; // Assuming the backend returns the JWT token
+        
+                localStorage.setItem('token', token); // Store JWT in localStorage
+                login({ username: values.username, token }); // Update context/state with JWT token
+                onClose();
+                navigate('/');
             } catch (error) {
                 console.error("Registration failed:", error);
             }

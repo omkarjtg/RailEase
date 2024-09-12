@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import axios from 'axios';
-import base64 from 'base-64';
+import api from '../userService'; 
 import './Login.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+
 const Login = ({ onLoginSuccess, onClose, onRegisterClick }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -19,22 +19,43 @@ const Login = ({ onLoginSuccess, onClose, onRegisterClick }) => {
       password: Yup.string().required('Password is required'),
     }),
     onSubmit: async (values) => {
-      const token = `${values.username}:${values.password}`;
-      const base64Token = base64.encode(token);
-
       try {
-        const res = await axios.get('http://localhost:8081/users', {
-          headers: {
-            "Authorization": `Basic ${base64Token}`
-          }
-        });
-        console.log(res.data);
-        onLoginSuccess(res.data);
+        const loginData = {
+          username: values.username,
+          password: values.password,
+        };
+    
+        const res = await api.post('/login', loginData);
+    
+        const { username, isAdmin, token } = res.data;
+    
+        const userData = {
+          username,  
+          isAdmin,   
+          token      
+        };
+    
+        // Store user data in localStorage
+        localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('jwtToken', token); 
+    
+        onLoginSuccess(userData);
+    
+        // Close login modal
         onClose();
       } catch (err) {
-        console.error("Login failed: ", err);
+        if (err.response) {
+          console.error("Login failed with status code:", err.response.status);
+          console.error("Response data:", err.response.data);
+        } else if (err.request) {
+          console.error("No response received from server.");
+        } else {
+          console.error("Error", err.message);
+        }
       }
     },
+    
+
   });
 
   return (
