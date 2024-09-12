@@ -20,17 +20,13 @@ This project aims to build a simplified clone of the Indian Railways Catering an
 
 - **Frontend**:
   - **Library**: React
-  - **State Management**: Redux/Context API (optional)
-
-- **Deployment**:
-  - **Backend**: AWS/Heroku
-  - **Frontend**: Vercel/Netlify
+  - **State Management**: Context API
 
 ## Getting Started
 
 ### Prerequisites
 
-- **Java 11 or higher**
+- **Java 17 or higher**
 - **Node.js and npm (for frontend)**
 - **MySQL**
 
