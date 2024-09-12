@@ -34,5 +34,5 @@ This project aims to build a simplified clone of the Indian Railways Catering an
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/Backend/RailEase.git
-   cd RailEase/backend
+   git clone https://github.com/omkarjtg/RailEase.git
+   cd RailEase/
