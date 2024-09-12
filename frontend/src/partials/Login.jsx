@@ -8,6 +8,7 @@ import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const Login = ({ onLoginSuccess, onClose, onRegisterClick }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState(''); // State to hold login error
 
   const formik = useFormik({
     initialValues: {
@@ -20,6 +21,8 @@ const Login = ({ onLoginSuccess, onClose, onRegisterClick }) => {
     }),
     onSubmit: async (values) => {
       try {
+        setLoginError(''); // Reset error state on each attempt
+
         const loginData = {
           username: values.username,
           password: values.password,
@@ -47,19 +50,20 @@ const Login = ({ onLoginSuccess, onClose, onRegisterClick }) => {
         if (err.response) {
           console.error("Login failed with status code:", err.response.status);
           console.error("Response data:", err.response.data);
+          setLoginError("Login failed. Please check your username and password."); // Set the error message
         } else if (err.request) {
           console.error("No response received from server.");
+          setLoginError("Unable to reach the server. Please try again later.");
         } else {
           console.error("Error", err.message);
+          setLoginError("An unexpected error occurred. Please try again.");
         }
       }
     },
-    
-
   });
 
   return (
-    <div className="modal-overlay">
+    <div className="modal-overlay"> 
       <div className="modal-container">
         <div className="modal-header">
           <h5 className="modal-title">Login</h5>
@@ -73,6 +77,9 @@ const Login = ({ onLoginSuccess, onClose, onRegisterClick }) => {
         </div>
         <div className="modal-body">
           <form onSubmit={formik.handleSubmit}>
+            {/* Display server error */}
+            {loginError && <div className="error-message server-error">{loginError}</div>}
+
             <div className="form-group">
               <label htmlFor="usernameInput">Username</label>
               <input
