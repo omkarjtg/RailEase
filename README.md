@@ -20,17 +20,13 @@ This project aims to build a simplified clone of the Indian Railways Catering an
 
 - **Frontend**:
   - **Library**: React
-  - **State Management**: Redux/Context API (optional)
-
-- **Deployment**:
-  - **Backend**: AWS/Heroku
-  - **Frontend**: Vercel/Netlify
+  - **State Management**: Context API
 
 ## Getting Started
 
 ### Prerequisites
 
-- **Java 11 or higher**
+- **Java 17 or higher**
 - **Node.js and npm (for frontend)**
 - **MySQL**
 
@@ -38,5 +34,5 @@ This project aims to build a simplified clone of the Indian Railways Catering an
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/Backend/RailEase.git
-   cd RailEase/backend
+   git clone https://github.com/omkarjtg/RailEase.git
+   cd RailEase/
