@@ -13,7 +13,7 @@ public class AdminSeeder implements CommandLineRunner {
 
     @Autowired
     private UserRepository userRepository;
-    //seeds a temporary admin account 
+    //seeds a temporary admin account (username: admin, password: password)
     @Override
     public void run(String... args) throws Exception {
         if (userRepository.findByUsername("admin") == null) {
