@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bookingservice.dto.UserDTO;
 import com.bookingservice.entity.Booking;
 import com.bookingservice.service.BookingService;
+import com.bookingservice.service.UserServiceClient;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
@@ -24,10 +26,16 @@ public class BookingController {
 	@Autowired
 	private BookingService bookingService;
 	
+	@Autowired
+	private UserServiceClient userServiceClient;
+
 	@PostMapping
 	public ResponseEntity<String> createBooking(@RequestBody Booking booking) {
-		return bookingService.createBooking(booking);
+	    UserDTO user = userServiceClient.getUserByUsername("someUsername");
+	    booking.setCustomerId(user.getId());
+	    return bookingService.createBooking(booking);
 	}
+
 	
 	@GetMapping("/{id}")
 	public List<Booking> getCustBooking(@PathVariable Long id){
