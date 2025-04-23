@@ -4,6 +4,7 @@ import Navbar from './partials/Navbar';
 import Popup from './partials/Popup';
 import BookingForm from './Pages/BookingForm';
 import './App.css';
+import BookingDetails from './Pages/MyBookings';
 import TrainList from './Pages/TrainList';
 import AddTrains from './Pages/AddTrains';
 import AboutUs from './Pages/AboutUs';
@@ -34,6 +35,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/book" element={<BookingForm />} />
+        <Route path="/myBookings/:userId" element={<BookingDetails />} />
         <Route path="/popup" element={<Popup />} />
         <Route path="/results" element={<Search />} />
         <Route path="/trains" element={<TrainList />} />

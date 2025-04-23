@@ -1,24 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { submitBooking } from '../trainService.js';
+import axios from 'axios';
+import './SearchResults.css';
 
 export default function Results() {
     const location = useLocation();
     const navigate = useNavigate();
     const { From, To, Date } = location.state || {};
-
     const [trains, setTrains] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [jwtToken, setJwtToken] = useState(localStorage.getItem('jwtToken')); // Assuming token is stored in localStorage
 
     useEffect(() => {
-        if (From && To && Date) {
+        if (From && To && Date && jwtToken) {
             const fetchTrains = async () => {
                 try {
-                    const results = await submitBooking(From, To, Date);
-                    setTrains(results);
-                } catch (error) {
-                    setError('Error fetching trains.');
+                    const response = await axios.get('http://localhost:8080/trains/', {
+                        params: {
+                            from: From,
+                            to: To,
+                            date: Date,
+                        },
+                        headers: {
+                            Authorization: `Bearer ${jwtToken}`,
+                        },
+                    });
+
+                    setTrains(response.data); // Assuming backend sends an array of trains
+                } catch (err) {
+                    if (err.response && err.response.status === 401) {
+                        setError('Unauthorized. Please log in again.');
+                    } else {
+                        setError('Error fetching trains. Please try again later.');
+                    }
                 } finally {
                     setLoading(false);
                 }
@@ -27,9 +42,9 @@ export default function Results() {
             fetchTrains();
         } else {
             setLoading(false);
-            setError('Invalid search criteria.');
+            setError('Invalid search criteria or missing JWT token.');
         }
-    }, [From, To, Date]);
+    }, [From, To, Date, jwtToken]);
 
     const formatTime = (time) => {
         return time.slice(0, 5); // Formats 'HH:mm:ss' to 'HH:mm'
@@ -41,29 +56,32 @@ export default function Results() {
     };
 
     const handleBook = (train) => {
-        // Assuming you want to pass booking details to the MockBookedPage
-        navigate('/booked', { 
+        navigate('/booked', {
             state: {
                 bookingId: '12345', // Example booking ID
                 name: 'John Doe', // Example name
                 from: train.source,
                 to: train.destination,
                 date: Date,
-                price: train.price
-            } 
+                price: train.price,
+            },
         });
     };
 
     return (
         <div className="container mt-5">
             <h1 className="mb-4 text-center">Search Results</h1>
+
             {loading ? (
                 <div className="text-center">
-                    <p>Loading Trains...</p>
+                    <div className="spinner-border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Loading trains...</p>
                 </div>
             ) : error ? (
-                <div className="text-center">
-                    <p>Error fetching trains: {error}</p>
+                <div className="text-center text-danger">
+                    <p>{error}</p>
                 </div>
             ) : (
                 trains.length > 0 ? (
@@ -75,7 +93,8 @@ export default function Results() {
                                 style={{
                                     border: '1px solid #ccc',
                                     padding: '15px',
-                                    borderRadius: '8px'
+                                    borderRadius: '8px',
+                                    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
                                 }}
                             >
                                 <div className="d-flex justify-content-between align-items-center">
@@ -87,10 +106,10 @@ export default function Results() {
                                 <hr />
                                 <div className="d-flex justify-content-between">
                                     <p className="mb-1" style={{ fontSize: '22px' }}>
-                                        {(train.source.toString().toUpperCase())}
+                                        {train.source.toUpperCase()}
                                     </p>
                                     <p className="mb-1" style={{ fontSize: '22px' }}>
-                                        {(train.destination.toString().toUpperCase())}
+                                        {train.destination.toUpperCase()}
                                     </p>
                                 </div>
                                 <div className="d-flex justify-content-between">
@@ -104,12 +123,12 @@ export default function Results() {
                                 <p className="mb-1">
                                     <strong>Price:</strong> ₹{train.price}
                                 </p>
-                                <div className='text-center'>
-                                    <button 
-                                        className='btn btn-primary'
+                                <div className="text-center">
+                                    <button
+                                        className="btn btn-primary"
                                         onClick={() => handleBook(train)}
                                     >
-                                        Book
+                                        Book Now
                                     </button>
                                 </div>
                             </li>
@@ -117,7 +136,7 @@ export default function Results() {
                     </ul>
                 ) : (
                     <div className="text-center">
-                        <p>No trains found</p>
+                        <p>No trains found matching your criteria.</p>
                     </div>
                 )
             )}

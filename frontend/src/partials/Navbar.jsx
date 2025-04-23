@@ -1,3 +1,6 @@
+/**
+ * @type {import('react').FC}
+ */
 import { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Login from './Login';
@@ -66,7 +69,7 @@ export default function Navbar() {
                                             </>
                                         ) : (
                                             <li>
-                                                <Link className="dropdown-item" to="/myBookings">My Bookings</Link>
+                                              <Link className="dropdown-item" to={`/myBookings/${user.id}`}>My Bookings</Link>
                                             </li>
                                         )}
                                         <li>

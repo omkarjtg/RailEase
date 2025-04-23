@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .header {
+            background-color: #2ecc71;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .highlight {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+        }
+        .route {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+        }
+        .station {
+            text-align: center;
+            flex: 1;
+        }
+        .arrow {
+            font-size: 24px;
+            color: #2ecc71;
+        }
+        .booking-details {
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-left: 4px solid #2ecc71;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h2>Booking Confirmed!</h2>
+</div>
+<div class="content">
+    <p>Dear <span class="highlight" th:text="${userName}">User</span>,</p>
+
+    <p>Your booking has been successfully confirmed! Here are your travel details:</p>
+
+    <div class="route">
+        <div class="station">
+            <h3 th:text="${source}">Source</h3>
+        </div>
+        <div class="arrow">-></div>
+        <div class="station">
+            <h3 th:text="${destination}">Destination</h3>
+        </div>
+    </div>
+
+    <div class="booking-details">
+        <p><strong>Train:</strong> <span th:text="${trainName}">Train</span></p>
+        <p><strong>Departure:</strong> <span th:text="${departureTime}">Time</span> on <span th:text="${schedule}">Date</span></p>
+        <p><strong>Booking ID:</strong> <span class="highlight" th:text="${bookingId}">12345</span></p>
+    </div>
+
+    <p>We wish you a pleasant journey! Please arrive at the station at least 30 minutes before departure.</p>
+
+    <p>Need help with your trip? Contact our 24/7 customer support.</p>
+
+    <p>Happy travels!<br>The RailEase Team</p>
+</div>
+<div class="footer">
+    <p>© 2023 RailEase Services. All rights reserved.</p>
+</div>
+</body>
+</html>

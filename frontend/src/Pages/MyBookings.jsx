@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import './MyBookings.css';
 
 const BookingDetails = () => {
+
+  const { userId } = useParams();
+
   const [bookingDetails, setBookingDetails] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios.get('https://localhost:8084/booking')  
+    axios.get('http://localhost:8084/booking')
       .then(response => {
         setBookingDetails(response.data);
         setLoading(false);
