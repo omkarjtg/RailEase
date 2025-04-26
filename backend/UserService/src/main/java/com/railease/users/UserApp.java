@@ -12,8 +12,11 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 public class UserApp {
 
     public static void main(String[] args) {
-            Dotenv dotenv = Dotenv.configure().load();
-            dotenv.entries().forEach(e -> System.setProperty(e.getKey(), e.getValue()));
+        Dotenv dotenv = Dotenv.configure()
+                .directory("/home/omkar/RailEase/backend/UserService")
+                .ignoreIfMissing() // Do not throw an exception if .env is missing
+                .load();
+        dotenv.entries().forEach(e -> System.setProperty(e.getKey(), e.getValue()));
         SpringApplication.run(UserApp.class, args);
     }
 

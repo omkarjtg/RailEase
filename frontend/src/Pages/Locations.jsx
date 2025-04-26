@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Location.css';
 import AddLocationForm from './AddLocation';
-import { getAllLocations, deleteLocation } from '../locationService';
+import LocationService from '../services/LocationService';
 
 const AllLocations = () => {
   const [locations, setLocations] = useState([]);

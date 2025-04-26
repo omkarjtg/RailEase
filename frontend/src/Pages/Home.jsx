@@ -4,7 +4,6 @@ import './Home.css'; // Make sure this path matches your file structure
 const HomePage = () => {
     return (
         <div className="home-container">
-            {/* Hero Banner */}
             <section className="hero-banner">
                 <h1>Welcome to RailEase</h1>
                 <p>Your one-stop solution for hassle-free train bookings.</p>
@@ -31,7 +30,7 @@ const HomePage = () => {
                 </div>
             </section>
 
-            {/* Testimonials Section */}
+            {/* Testimonials Section
             <section className="testimonials">
                 <div className="container">
                     <h2>What Our Users Say</h2>
@@ -68,7 +67,7 @@ const HomePage = () => {
                         </div>
                     </div>
                 </div>
-            </section>
+            </section> */}
 
             {/* Call to Action */}
             <section className="cta">

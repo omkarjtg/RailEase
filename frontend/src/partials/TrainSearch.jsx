@@ -21,7 +21,7 @@ const TrainSearchForm = () => {
             const data = await getTrainByNumber(trainNumber);
             setTrain(data);
         } catch (err) {
-            setError('Train not found or there was an error fetching the details.');
+            setError(err.response?.data?.message || 'Train not found or there was an error fetching the details.');
         } finally {
             setLoading(false);
         }

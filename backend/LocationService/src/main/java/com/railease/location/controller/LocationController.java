@@ -4,6 +4,8 @@ import com.railease.location.entity.Location;
 import com.railease.location.exception.LocationAlreadyExistsException;
 import com.railease.location.exception.LocationNotFoundException;
 import com.railease.location.service.LocationService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,11 +16,9 @@ import java.util.List;
 @RequestMapping("/api/locations")
 public class LocationController {
 
-    private final LocationService locationService;
+    @Autowired
+    private LocationService locationService;
 
-    public LocationController(LocationService locationService) {
-        this.locationService = locationService;
-    }
 
     @GetMapping("/city/{city}")
     public ResponseEntity<?> findByCity(@PathVariable String city) {

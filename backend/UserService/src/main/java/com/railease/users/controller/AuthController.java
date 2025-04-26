@@ -1,65 +1,52 @@
-package com.railease.users.controller;
+    package com.railease.users.controller;
 
-import com.railease.users.dto.*;
-import com.railease.users.service.AuthService;
-import com.railease.users.utils.JwtUtil;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+    import com.railease.users.dto.*;
+    import com.railease.users.model.User;
+    import com.railease.users.repo.UserRepo;
+    import com.railease.users.service.AuthService;
+    import lombok.RequiredArgsConstructor;
+    import lombok.extern.slf4j.Slf4j;
+    import org.springframework.http.ResponseEntity;
+    import org.springframework.security.access.prepost.PreAuthorize;
+    import org.springframework.security.core.Authentication;
+    import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api/auth")
-@RequiredArgsConstructor
-public class AuthController {
+    @RestController
+    @RequestMapping("/api/auth")
+    @RequiredArgsConstructor
+    @Slf4j
+    public class AuthController {
+        private final UserRepo userRepo;
 
-    private final AuthService authService;
-    private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil;
+        private final AuthService authService;
 
-    @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest request) {
-        try {
-            var user = authService.registerUser(request);
+        @PostMapping("/login")
+        public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest loginRequest) {
+            log.info("Login attempt: {}", loginRequest.getIdentifier());
+            TokenResponse tokenResponse = authService.authenticateUser(loginRequest);
+            return ResponseEntity.ok(tokenResponse);
+        }
 
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(user.getEmail(), request.getPassword())
-            );
+        @PostMapping("/register")
+        public ResponseEntity<TokenResponse> register(@RequestBody RegisterRequest registerRequest) {
+            log.info("Register attempt: {}", registerRequest.getEmail());
+            TokenResponse tokenResponse = authService.registerUser(registerRequest);
+            return ResponseEntity.ok(tokenResponse);
+        }
 
-            if (authentication.isAuthenticated()) {
-                String token = jwtUtil.generateToken(user);
-                return new ResponseEntity<>(new TokenResponse(token), HttpStatus.CREATED);
-            } else {
-                return new ResponseEntity<>("User created but auto-login failed", HttpStatus.OK);
+        @GetMapping("/profile")
+        @PreAuthorize("isAuthenticated()")
+        public ResponseEntity<ProfileDTO> getProfile(Authentication authentication) {
+            String currentUsername = authentication.getName();
+            User user = userRepo.findByUsername(currentUsername)
+                    .orElseGet(() -> {
+                        log.warn("User not found for username: {}", currentUsername);
+                        return null;
+                    });
+            if (user == null) {
+                return ResponseEntity.notFound().build();
             }
-
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return new ResponseEntity<>("Something went wrong. Please try again.", HttpStatus.INTERNAL_SERVER_ERROR);
+            ProfileDTO profile = new ProfileDTO(user);
+            return ResponseEntity.ok(profile);
         }
     }
-
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        try {
-            var user = authService.authenticate(request.getIdentifier(), request.getPassword());
-            String token = jwtUtil.generateToken(user);
-            return ResponseEntity.ok(new TokenResponse(token));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Something went wrong. Please try again.");
-        }
-    }
-
-    @GetMapping("/profile")
-    public ResponseEntity<ProfileDTO> getProfile(Authentication authentication) {
-        var profile = authService.getProfile(authentication.getName());
-        return profile != null ? ResponseEntity.ok(profile) : ResponseEntity.notFound().build();
-    }
-}

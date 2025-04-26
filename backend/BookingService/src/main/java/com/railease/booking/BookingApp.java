@@ -12,7 +12,10 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 public class BookingApp {
 
 	public static void main(String[] args) {
-		Dotenv dotenv = Dotenv.configure().load();
+		Dotenv dotenv = Dotenv.configure()
+				.directory("/home/omkar/RailEase/backend/BookingService")
+				.ignoreIfMissing() // Do not throw an exception if .env is missing
+				.load();
 		dotenv.entries().forEach(e -> System.setProperty(e.getKey(), e.getValue()));
 		SpringApplication.run(BookingApp.class, args);
 	}

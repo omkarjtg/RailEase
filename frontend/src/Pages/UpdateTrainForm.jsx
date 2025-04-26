@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getTrainByNumber, updateTrain } from '../trainService';
-import { getAllLocations } from '../locationService';
+import { getTrainByNumber, updateTrain } from '../services/TrainService';
+import LocationService from '../services/LocationService';
 
 const UpdateTrainForm = () => {
   const navigate = useNavigate();

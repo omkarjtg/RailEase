@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode'; // Assuming you are using jwt-decode for token handling
 
 export const AuthContext = createContext();
 
@@ -7,22 +8,29 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const storedUser = JSON.parse(localStorage.getItem('user'));
-        if (storedUser) {
-            setUser(storedUser);
+        const storedToken = localStorage.getItem('jwtToken');
+
+        if (storedUser && storedToken) {
+            const decodedToken = jwtDecode(storedToken);
+            const isTokenExpired = decodedToken.exp * 1000 < Date.now();
+            if (isTokenExpired) {
+                logout(); // Automatically logout if token is expired
+            } else {
+                setUser(storedUser);  // Set user details (username, role, isAdmin) from localStorage
+            }
         }
     }, []);
 
     const login = (userData) => {
-        // Directly use userData fields since it's already in the correct format
         const userObj = {
-            username: userData.username,  // "omkar"
-            isAdmin: userData.isAdmin,    // true
-            token: userData.token         // JWT token
+            username: userData.username,
+            role: userData.role,
+            isAdmin: userData.isAdmin,
+            token: userData.accessToken,
         };
 
         localStorage.setItem('user', JSON.stringify(userObj));
-        localStorage.setItem('jwtToken', userData.token);
-
+        localStorage.setItem('jwtToken', userData.accessToken);  // Store token
         setUser(userObj);
     };
 

@@ -50,6 +50,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/trains/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/trains/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/trains/**").hasRole("ADMIN")
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/webjars/**",
+                                "/favicon.ico"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

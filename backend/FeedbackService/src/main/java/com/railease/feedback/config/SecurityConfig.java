@@ -48,6 +48,13 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement((session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/webjars/**",
+                                "/favicon.ico"
+                        ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/feedback").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/feedback/my").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/feedback/all").hasRole("ADMIN")

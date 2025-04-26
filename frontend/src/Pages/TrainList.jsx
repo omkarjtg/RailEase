@@ -1,14 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllTrains, updateTrain, deleteTrain } from '../trainService';
+import { AuthContext } from '../AuthContext'; // Import AuthContext
+import { getAllTrains, deleteTrain } from '../services/TrainService';
 import TrainSearchForm from '../partials/TrainSearch';
 
 const TrainList = () => {
     const navigate = useNavigate();
-    const [user, setUser] = useState(() => {
-        const storedUser = localStorage.getItem('user');
-        return storedUser ? JSON.parse(storedUser) : null;
-    });
+    const { user } = useContext(AuthContext); // Get user from AuthContext
 
     const [trains, setTrains] = useState([]);
     const [error, setError] = useState(null);
@@ -21,7 +19,7 @@ const TrainList = () => {
                 setTrains(data);
                 setLoading(false);
             } catch (err) {
-                setError(err);
+                setError(err.response?.data?.message || err.message);
                 setLoading(false);
             }
         };
@@ -30,26 +28,24 @@ const TrainList = () => {
     }, []);
 
     const formatTime = (time) => {
-        return time ? time.slice(0, 5) : 'N/A'; // Return 'N/A' if time is not available
+        return time ? time.slice(0, 5) : 'N/A';
     };
 
     const formatDate = (date) => {
-        if (!date) return 'N/A'; // Return 'N/A' if date is not available
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(date).toLocaleDateString(undefined, options);
+        if (!date) return 'N/A';
+        return new Date(date).toLocaleDateString();
     };
 
-    const handleUpdate = async (trainNumber) => {
-        navigate(`/update-train/${trainNumber}`);
+    const handleUpdate = (trainId) => {
+        navigate(`/update-train/${trainId}`);
     };
-
 
     const handleDelete = async (trainId) => {
         try {
             await deleteTrain(trainId);
-            setTrains(trains.filter(train => train.id !== trainId));
+            setTrains(trains.filter((train) => train.id !== trainId));
         } catch (error) {
-            console.error('Failed to delete train:', error);
+            setError(error.response?.data?.message || 'Failed to delete train');
         }
     };
 
@@ -63,18 +59,18 @@ const TrainList = () => {
                 </div>
             ) : error ? (
                 <div className="text-center text-danger">
-                    <p>Error: {error.message}</p>
+                    <p>Error: {error}</p>
                 </div>
             ) : trains.length > 0 ? (
                 <ul className="list-group">
-                    {trains.map(train => (
+                    {trains.map((train) => (
                         <li
                             className="list-group-item mb-3"
                             key={train.id}
                             style={{
                                 border: '1px solid #ccc',
                                 padding: '15px',
-                                borderRadius: '8px'
+                                borderRadius: '8px',
                             }}
                         >
                             <div className="d-flex justify-content-between align-items-center">
@@ -104,15 +100,14 @@ const TrainList = () => {
                             <p className="mb-1">
                                 <strong>Price:</strong> ₹{train.price ? train.price : 'N/A'}
                             </p>
-                            {user && user.isAdmin && (
+                            {user && user.role === 'ADMIN' && (
                                 <div className="mt-3 d-flex justify-content-between">
                                     <button
                                         className="btn btn-warning me-2"
-                                        onClick={() => handleUpdate(train.number)}
+                                        onClick={() => handleUpdate(train.id)}
                                     >
                                         Update
                                     </button>
-
                                     <button
                                         className="btn btn-danger"
                                         onClick={() => handleDelete(train.id)}
@@ -121,7 +116,6 @@ const TrainList = () => {
                                     </button>
                                 </div>
                             )}
-                            
                         </li>
                     ))}
                 </ul>

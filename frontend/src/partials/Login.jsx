@@ -1,129 +1,129 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import api from '../userService'; 
-import './Login.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { BsEyeSlashFill, BsEyeFill } from 'react-icons/bs';
+import { jwtDecode } from 'jwt-decode'; // Import jwtDecode
+import { login } from '../services/AuthService';
+import '../styles/Auth.css';
 
-const Login = ({ onLoginSuccess, onClose, onRegisterClick }) => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [loginError, setLoginError] = useState(''); // State to hold login error
+const Login = ({ onLoginSuccess, onSwitchToSignup, onForgotPassword }) => {
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
-  const formik = useFormik({
-    initialValues: {
-      username: '',
-      password: '',
-    },
-    validationSchema: Yup.object({
-      username: Yup.string().required('Username is required'),
-      password: Yup.string().required('Password is required'),
-    }),
-    onSubmit: async (values) => {
-      try {
-        setLoginError(''); // Reset error state on each attempt
+    const formik = useFormik({
+        initialValues: {
+            identifier: '',
+            password: '',
+        },
+        validationSchema: Yup.object({
+            identifier: Yup.string().required('Username or email is required'),
+            password: Yup.string().required('Password is required'),
+        }),
+        onSubmit: async (values) => {
+            setLoading(true);
+            setError('');
+            try {
+                const response = await login(values);
+                const { accessToken } = response;
 
-        const loginData = {
-          username: values.username,
-          password: values.password,
-        };
-    
-        const res = await api.post('/login', loginData);
-    
-        const { username, isAdmin, token } = res.data;
-    
-        const userData = {
-          username,  
-          isAdmin,   
-          token      
-        };
-    
-        // Store user data in localStorage
-        localStorage.setItem('user', JSON.stringify(userData));
-        localStorage.setItem('jwtToken', token); 
-    
-        onLoginSuccess(userData);
-    
-        // Close login modal
-        onClose();
-      } catch (err) {
-        if (err.response) {
-          console.error("Login failed with status code:", err.response.status);
-          console.error("Response data:", err.response.data);
-          setLoginError("Login failed. Please check your username and password."); // Set the error message
-        } else if (err.request) {
-          console.error("No response received from server.");
-          setLoginError("Unable to reach the server. Please try again later.");
-        } else {
-          console.error("Error", err.message);
-          setLoginError("An unexpected error occurred. Please try again.");
+                // Decode the JWT token to get user info
+                const decodedToken = jwtDecode(accessToken);
+
+                // Construct userInfo from decoded token
+                const userInfo = {
+                    username: decodedToken.sub, // Use 'sub' for username
+                    role: decodedToken.role,
+                    userId: decodedToken.userId,
+                    email: decodedToken.email || values.identifier, // Fallback to identifier if email not in token
+                };
+
+                // Store token and user info in localStorage
+                localStorage.setItem('token', accessToken);
+                localStorage.setItem('user', JSON.stringify(userInfo));
+
+                // Pass userInfo to onLoginSuccess
+                onLoginSuccess({ ...userInfo, accessToken });
+            } catch (err) {
+                setError(err.message || 'Login failed. Please try again.');
+            } finally {
+                setLoading(false);
+            }
+        },
+    });
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            formik.handleSubmit();
         }
-      }
-    },
-  });
+    };
 
-  return (
-    <div className="modal-overlay"> 
-      <div className="modal-container">
-        <div className="modal-header">
-          <h5 className="modal-title">Login</h5>
-          <button
-            type="button"
-            className="close-button"
-            onClick={onClose}
-          >
-            &times;
-          </button>
+    return (
+        <div className="auth-form">
+            <h2>Login to RailEase</h2>
+            {error && <div className="error-message">{error}</div>}
+            <form onSubmit={formik.handleSubmit}>
+                <div className="form-field">
+                    <label htmlFor="identifier">Username or Email</label>
+                    <input
+                        id="identifier"
+                        name="identifier"
+                        type="text"
+                        className={formik.touched.identifier && formik.errors.identifier ? 'input-error' : ''}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.identifier}
+                        onKeyDown={handleKeyDown}
+                    />
+                    {formik.touched.identifier && formik.errors.identifier && (
+                        <div className="error-text">{formik.errors.identifier}</div>
+                    )}
+                </div>
+
+                <div className="form-field password-field">
+                    <label htmlFor="password">Password</label>
+                    <div className="password-wrapper">
+                        <input
+                            id="password"
+                            name="password"
+                            type={showPassword ? 'text' : 'password'}
+                            className={formik.touched.password && formik.errors.password ? 'input-error' : ''}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            value={formik.values.password}
+                            onKeyDown={handleKeyDown}
+                        />
+                        <button
+                            type="button"
+                            className="password-toggle-btn"
+                            onClick={() => setShowPassword(!showPassword)}
+                        >
+                            {showPassword ? <BsEyeSlashFill /> : <BsEyeFill />}
+                        </button>
+                    </div>
+                    {formik.touched.password && formik.errors.password && (
+                        <div className="error-text">{formik.errors.password}</div>
+                    )}
+                </div>
+
+                <div className="switch-link">
+                    <button type="button" className="switch-link" onClick={onForgotPassword}>
+                        Forgot Password?
+                    </button>
+                </div>
+                <br />
+                <button type="submit" className="submit-btn" disabled={loading}>
+                    {loading ? 'Logging in...' : 'Login'}
+                </button>
+            </form>
+            <div className="form-footer">
+                Don't have an account?{' '}
+                <button type="button" className="switch-link" onClick={onSwitchToSignup}>
+                    Sign up
+                </button>
+            </div>
         </div>
-        <div className="modal-body">
-          <form onSubmit={formik.handleSubmit}>
-            {/* Display server error */}
-            {loginError && <div className="error-message server-error">{loginError}</div>}
-
-            <div className="form-group">
-              <label htmlFor="usernameInput">Username</label>
-              <input
-                id="usernameInput"
-                type="text"
-                autoComplete="username"
-                className={`form-control ${formik.touched.username && formik.errors.username ? 'input-error' : ''}`}
-                {...formik.getFieldProps('username')}
-              />
-              {formik.touched.username && formik.errors.username ? (
-                <div className="error-message">{formik.errors.username}</div>
-              ) : null}
-            </div>
-            <div className="form-group position-relative">
-              <label htmlFor="passwordInput">Password</label>
-              <input
-                id="passwordInput"
-                type={showPassword ? 'text' : 'password'}
-                autoComplete="current-password"
-                className={`form-control ${formik.touched.password && formik.errors.password ? 'input-error' : ''}`}
-                {...formik.getFieldProps('password')}
-              />
-              <button
-                type="button"
-                className="eye-btn"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-              </button>
-              {formik.touched.password && formik.errors.password ? (
-                <div className="error-message">{formik.errors.password}</div>
-              ) : null}
-            </div>
-            <div className="additional-links">
-              <a href="/forgot-password" className="link">Forgot Password?</a>
-              <p>Don't have an account? <span className="link" onClick={onRegisterClick}>Register</span></p>
-            </div>
-            <button type="submit" className="submit-button">Login</button>
-          </form>
-        </div>
-
-      </div>
-    </div>
-  );
+    );
 };
 
 export default Login;

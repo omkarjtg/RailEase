@@ -3,35 +3,55 @@ import { useFormik } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { MdSwapVert } from "react-icons/md";
+import API from '../services/axios';
 import './BookingForm.css';
-import { submitBooking } from '../trainService.js';
-import { getAllLocations } from '../locationService';
 
-export default function BookingForm() {
+const BookingForm = () => {
     const navigate = useNavigate();
     const [locations, setLocations] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
     const formik = useFormik({
         initialValues: {
-            From: '',
-            To: '',
-            Date: '',
-            PersonWithDisability: false,
-            FlexibleWithDate: false,
-            TrainWithAvailableBirth: false,
-            RailwayPassConcession: false
+            from: '',
+            to: '',
+            date: '',
+            personWithDisability: false,
+            flexibleWithDate: false,
+            trainWithAvailableBerth: false,
+            railwayPassConcession: false
         },
         validationSchema: Yup.object({
-            From: Yup.string().required('Arrival place is required'),
-            To: Yup.string().required('Destination place is required'),
-            Date: Yup.date().required('Date is required')
+            from: Yup.string().required('Departure station is required'),
+            to: Yup.string()
+                .required('Destination station is required')
+                .notOneOf([Yup.ref('from')], 'Departure and destination must be different'),
+            date: Yup.date()
+                .required('Date is required')
+                .min(new Date(), 'Date cannot be in the past')
         }),
-        onSubmit: async values => {
+        onSubmit: async (values) => {
+            setLoading(true);
+            setError(null);
             try {
-                const trains = await submitBooking(values.From, values.To, values.Date);
-                console.log('Trains fetched', trains);
-                navigate('/results', { state: { From: values.From, To: values.To, Date: values.Date } });
-            } catch (error) {
-                console.error('Error fetching trains:', error);
+                const response = await API.post('/booking', {
+                    from: values.from,
+                    to: values.to,
+                    date: values.date,
+                    preferences: {
+                        personWithDisability: values.personWithDisability,
+                        flexibleWithDate: values.flexibleWithDate,
+                        trainWithAvailableBerth: values.trainWithAvailableBerth,
+                        railwayPassConcession: values.railwayPassConcession
+                    }
+                });
+                navigate('/booking-confirmation', { state: { bookingId: response.data.id } });
+            } catch (err) {
+                setError(err.response?.data?.message || 'Failed to book ticket');
+                console.error('Booking error:', err);
+            } finally {
+                setLoading(false);
             }
         }
     });
@@ -39,99 +59,182 @@ export default function BookingForm() {
     useEffect(() => {
         const fetchLocations = async () => {
             try {
-                const data = await getAllLocations();
-                setLocations(data || []);
-            } catch (error) {
-                console.error('Error fetching locations:', error);
+                const response = await API.get('/locations');
+                setLocations(response.data);
+            } catch (err) {
+                console.error('Error fetching locations:', err);
             }
         };
-
         fetchLocations();
     }, []);
 
     const handleSwap = () => {
-        formik.setFieldValue('From', formik.values.To);
-        formik.setFieldValue('To', formik.values.From);
+        const temp = formik.values.from;
+        formik.setFieldValue('from', formik.values.to);
+        formik.setFieldValue('to', temp);
     };
 
     return (
-        <div className="container mt-4" id='bookingForm'>
+        <div className="container mt-4 booking-form">
             <div className="row justify-content-center">
                 <div className="col-md-8">
-                    <h2>BOOK TICKET</h2>
+                    <h2 className="text-center mb-4">BOOK TICKET</h2>
+                    {error && <div className="alert alert-danger">{error}</div>}
+                    
                     <form onSubmit={formik.handleSubmit}>
                         <div className="row">
-                            {/* Left Column */}
                             <div className="col-md-6">
-                                <div className='mb-3 position-relative'>
-                                    <label htmlFor="From" className='form-label'>From</label>
+                                <div className="mb-3">
+                                    <label htmlFor="from" className="form-label">From</label>
                                     <select
-                                        name="From"
-                                        id="From"
-                                        className={`form-control ${formik.touched.From && formik.errors.From ? 'is-invalid' : ''}`}
-                                        {...formik.getFieldProps('From')}
+                                        id="from"
+                                        name="from"
+                                        className={`form-select ${formik.touched.from && formik.errors.from ? 'is-invalid' : ''}`}
+                                        value={formik.values.from}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
                                     >
-                                        <option value="">Select Source Station</option>
+                                        <option value="">Select departure station</option>
                                         {locations.map(location => (
                                             <option key={location.id} value={location.city}>
-                                                {location.city}, {location.state}, {location.country}
+                                                {location.city} ({location.code})
                                             </option>
                                         ))}
                                     </select>
-                                    {formik.touched.From && formik.errors.From ? (
-                                        <div className="invalid-feedback">{formik.errors.From}</div>
-                                    ) : null}
+                                    {formik.touched.from && formik.errors.from && (
+                                        <div className="invalid-feedback">{formik.errors.from}</div>
+                                    )}
                                 </div>
-                                <div className="d-flex align-items-center justify-content-between mb-3">
-                                    <button id='btn5' type="button" className="btn btn-outline-secondary" onClick={handleSwap} title="Swap From and To">
-                                        <MdSwapVert />
+
+                                <div className="d-flex justify-content-center mb-3">
+                                    <button 
+                                        type="button" 
+                                        className="btn btn-outline-secondary swap-btn"
+                                        onClick={handleSwap}
+                                        title="Swap stations"
+                                    >
+                                        <MdSwapVert size={24} />
                                     </button>
                                 </div>
-                                <div className='mb-3 position-relative'>
-                                    <label htmlFor="To" className='form-label'>To</label>
+
+                                <div className="mb-3">
+                                    <label htmlFor="to" className="form-label">To</label>
                                     <select
-                                        name="To"
-                                        id="To"
-                                        className={`form-control ${formik.touched.To && formik.errors.To ? 'is-invalid' : ''}`}
-                                        {...formik.getFieldProps('To')}
+                                        id="to"
+                                        name="to"
+                                        className={`form-select ${formik.touched.to && formik.errors.to ? 'is-invalid' : ''}`}
+                                        value={formik.values.to}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
                                     >
-                                        <option value="">Select Destination Station</option>
+                                        <option value="">Select destination station</option>
                                         {locations.map(location => (
                                             <option key={location.id} value={location.city}>
-                                                {location.city}, {location.state}, {location.country}
+                                                {location.city} ({location.code})
                                             </option>
                                         ))}
                                     </select>
-                                    {formik.touched.To && formik.errors.To ? (
-                                        <div className="invalid-feedback">{formik.errors.To}</div>
-                                    ) : null}
+                                    {formik.touched.to && formik.errors.to && (
+                                        <div className="invalid-feedback">{formik.errors.to}</div>
+                                    )}
                                 </div>
                             </div>
 
-                            {/* Right Column */}
                             <div className="col-md-6">
-                                <div className='mb-3'>
-                                    <label htmlFor="Date" className='form-label'>Date</label>
+                                <div className="mb-3">
+                                    <label htmlFor="date" className="form-label">Date</label>
                                     <input
                                         type="date"
-                                        name="Date"
-                                        id="Date"
-                                        className={`form-control ${formik.touched.Date && formik.errors.Date ? 'is-invalid' : ''}`}
-                                        {...formik.getFieldProps('Date')}
+                                        id="date"
+                                        name="date"
+                                        className={`form-control ${formik.touched.date && formik.errors.date ? 'is-invalid' : ''}`}
+                                        value={formik.values.date}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        min={new Date().toISOString().split('T')[0]}
                                     />
-                                    {formik.touched.Date && formik.errors.Date ? (
-                                        <div className="invalid-feedback">{formik.errors.Date}</div>
-                                    ) : null}
+                                    {formik.touched.date && formik.errors.date && (
+                                        <div className="invalid-feedback">{formik.errors.date}</div>
+                                    )}
+                                </div>
+
+                                <div className="form-check mb-2">
+                                    <input
+                                        type="checkbox"
+                                        id="personWithDisability"
+                                        name="personWithDisability"
+                                        className="form-check-input"
+                                        checked={formik.values.personWithDisability}
+                                        onChange={formik.handleChange}
+                                    />
+                                    <label htmlFor="personWithDisability" className="form-check-label">
+                                        Person with disability
+                                    </label>
+                                </div>
+
+                                <div className="form-check mb-2">
+                                    <input
+                                        type="checkbox"
+                                        id="flexibleWithDate"
+                                        name="flexibleWithDate"
+                                        className="form-check-input"
+                                        checked={formik.values.flexibleWithDate}
+                                        onChange={formik.handleChange}
+                                    />
+                                    <label htmlFor="flexibleWithDate" className="form-check-label">
+                                        Flexible with date (±2 days)
+                                    </label>
+                                </div>
+
+                                <div className="form-check mb-2">
+                                    <input
+                                        type="checkbox"
+                                        id="trainWithAvailableBerth"
+                                        name="trainWithAvailableBerth"
+                                        className="form-check-input"
+                                        checked={formik.values.trainWithAvailableBerth}
+                                        onChange={formik.handleChange}
+                                    />
+                                    <label htmlFor="trainWithAvailableBerth" className="form-check-label">
+                                        Only trains with available berths
+                                    </label>
+                                </div>
+
+                                <div className="form-check mb-3">
+                                    <input
+                                        type="checkbox"
+                                        id="railwayPassConcession"
+                                        name="railwayPassConcession"
+                                        className="form-check-input"
+                                        checked={formik.values.railwayPassConcession}
+                                        onChange={formik.handleChange}
+                                    />
+                                    <label htmlFor="railwayPassConcession" className="form-check-label">
+                                        Railway pass concession
+                                    </label>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="text-center">
-                            <button id='btn4' type="submit" className="btn btn-primary">Search</button>
+                        <div className="text-center mt-4">
+                            <button 
+                                type="submit" 
+                                className="btn btn-primary search-btn"
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <>
+                                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                        Searching...
+                                    </>
+                                ) : 'Search Trains'}
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     );
-}
+};
+
+export default BookingForm;

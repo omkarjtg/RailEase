@@ -47,13 +47,14 @@ public class PasswordResetService {
                 });
 
         // Delete any existing tokens for the user
-        tokenRepository.deleteByUserId(user.getId());
+        tokenRepository.deleteByEmail(email);
 
         // Generate and save new token
         String token = UUID.randomUUID().toString();
         PasswordResetToken resetToken = new PasswordResetToken();
         resetToken.setToken(token);
-        resetToken.setUser(user); // Assuming PasswordResetToken has a User field
+        resetToken.setUser(user);
+        resetToken.setEmail(user.getEmail());
         resetToken.setExpiryDate(LocalDateTime.now().plusMinutes(TOKEN_EXPIRY_MINUTES));
         tokenRepository.save(resetToken);
 

@@ -1,0 +1,95 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-EurekaServerApplication<com.railease-eurekaServer>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.railease.eurekaServer.EurekaServerApplication",
+      "projectName": "com.railease-eurekaServer",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env",
+      "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=37755 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=com.railease-eurekaServer"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-TrainApp<TrainService>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.railease.trains.TrainApp",
+      "projectName": "TrainService",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-PaymentApp<PaymentService>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.railease.payment.PaymentApp",
+      "projectName": "PaymentService",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-NotificationApp<NotificationService>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.railease.notification.NotificationApp",
+      "projectName": "NotificationService",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-FeedbackApp<FeedbackService>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.railease.feedback.FeedbackApp",
+      "projectName": "FeedbackService",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-UserApp<com.railease-UserService>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.railease.users.UserApp",
+      "projectName": "com.railease-UserService",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-ApiGateway<com.railease-ApiGateway>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.railease.ApiGateway.ApiGateway",
+      "projectName": "com.railease-ApiGateway",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-BookingApp<BookingService>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.railease.booking.BookingApp",
+      "projectName": "BookingService",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-LocationApp<com.railease-app>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.railease.location.LocationApp",
+      "projectName": "com.railease-app",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}

@@ -2,16 +2,13 @@ package com.railease.trains.controller;
 
 import com.railease.trains.dto.TrainRequestDTO;
 import com.railease.trains.dto.TrainResponseDTO;
-import com.railease.trains.entity.Train;
 import com.railease.trains.service.TrainService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import jakarta.validation.Valid;
 
 
 @RestController

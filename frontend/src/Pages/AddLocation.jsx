@@ -3,7 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Button, Col, Row } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { addLocation } from '../locationService';
+import LocationService from '../services/LocationService';
 
 const AddLocationForm = ({ onSuccess }) => {
   const navigate = useNavigate();

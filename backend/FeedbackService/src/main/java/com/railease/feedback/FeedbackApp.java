@@ -10,7 +10,10 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 public class FeedbackApp {
 
 	public static void main(String[] args) {
-		Dotenv dotenv = Dotenv.configure().load();
+		Dotenv dotenv = Dotenv.configure()
+				.directory("/home/omkar/RailEase/backend/FeedbackService")
+				.ignoreIfMissing() // Do not throw an exception if .env is missing
+				.load();
 		dotenv.entries().forEach(e -> System.setProperty(e.getKey(), e.getValue()));
 		SpringApplication.run(FeedbackApp.class, args);
 	}
