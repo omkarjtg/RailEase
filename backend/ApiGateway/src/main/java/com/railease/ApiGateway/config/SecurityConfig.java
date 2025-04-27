@@ -1,6 +1,7 @@
 package com.railease.ApiGateway.config;
 
-import com.railease.ApiGateway.util.JwtUtil;
+import com.railease.ApiGateway.config.JwtServerSecurityContextRepository;
+import com.railease.ApiGateway.utils.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -38,7 +39,9 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.GET, "/api/locations").permitAll()
                         .pathMatchers("/favicon.ico").permitAll()
                         .pathMatchers("/api/public/**").permitAll()
+                        .pathMatchers("/api/debug/**").permitAll() // For testing
                         .pathMatchers(HttpMethod.DELETE, "/api/locations/**").hasRole("ADMIN")
+//                        .pathMatchers(HttpMethod.POST, "/api/locations/**").hasRole("ADMIN")
                         .anyExchange().authenticated()
                 )
                 .logout(logout -> logout.disable());
@@ -58,14 +61,14 @@ public class SecurityConfig {
                 if (jwtUtil.validateToken(token)) {
                     String username = jwtUtil.getUsernameFromToken(token);
                     String role = jwtUtil.getRoleFromToken(token);
-                    // Prefix role with "ROLE_" for Spring Security
                     List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
                     return Mono.just(new UsernamePasswordAuthenticationToken(username, token, authorities));
                 }
+                return Mono.empty();
             } catch (Exception e) {
+                System.err.println("Authentication error: " + e.getMessage());
                 return Mono.empty();
             }
-            return Mono.empty();
         };
     }
 

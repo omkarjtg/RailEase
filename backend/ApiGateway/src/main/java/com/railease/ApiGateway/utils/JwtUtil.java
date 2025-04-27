@@ -1,4 +1,4 @@
-package com.railease.ApiGateway.util;
+package com.railease.ApiGateway.utils;
 
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
