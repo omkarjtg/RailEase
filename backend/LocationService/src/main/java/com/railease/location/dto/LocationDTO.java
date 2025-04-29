@@ -11,12 +11,14 @@ public class LocationDTO {
     private String city;
     private String state;
     private Integer postalCode;
+    private String stationCode;
 
     public LocationDTO(Location location) {
         this.id = location.getLocationId();
         this.city = location.getCity();
         this.state = location.getState();
         this.postalCode = location.getPostalCode();
+        this.stationCode = location.getStationCode();
     }
 
     public Location toEntity() {
@@ -24,6 +26,7 @@ public class LocationDTO {
         loc.setLocationId(this.id);
         loc.setCity(this.city);
         loc.setState(this.state);
+        loc.setStationCode(this.stationCode);
         loc.setPostalCode(this.postalCode);
         return loc;
     }

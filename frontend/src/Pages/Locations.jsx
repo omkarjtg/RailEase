@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import './Location.css';
+import '../styles/Location.css';
 import AddLocationForm from './AddLocation';
-import LocationService from '../services/LocationService';
+import UpdateLocationForm from './UpdateLocation';
+import { getAllLocations, deleteLocation } from '../services/LocationService';
 
 const AllLocations = () => {
   const [locations, setLocations] = useState([]);
   const [flashMessage, setFlashMessage] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [locationToEdit, setLocationToEdit] = useState(null);
 
   const user = JSON.parse(localStorage.getItem('user'));
 
@@ -56,18 +59,38 @@ const AllLocations = () => {
     fetchLocations();
   };
 
+  const handleUpdate = (location) => {
+    setLocationToEdit(location);
+    setIsEditing(true);
+  };
+
   return (
     <div id="container">
-      <h1>Locations</h1>
+      <h1 className='location-h1'>Locations</h1>
       {flashMessage && <div className="alert alert-info">{flashMessage}</div>}
-      <AddLocationForm onSuccess={handleFormSuccess} />
+      {isEditing ? (
+        <UpdateLocationForm
+          locationToEdit={locationToEdit}
+          onSuccess={() => {
+            setIsEditing(false);
+            setLocationToEdit(null);
+            handleFormSuccess(); // Refresh locations
+          }}
+          onCancel={() => {
+            setIsEditing(false);
+            setLocationToEdit(null);
+          }}
+        />
+      ) : (
+        <AddLocationForm onSuccess={handleFormSuccess} />
+      )}
 
       <table className="table table-bordered table-hover">
         <thead>
           <tr>
             <th>City</th>
             <th>State</th>
-            <th>Country</th>
+            <th>Code</th>
             <th>Postal Code</th>
             <th>Action</th>
           </tr>
@@ -78,11 +101,13 @@ const AllLocations = () => {
               <tr key={location.id}>
                 <td>{location.city}</td>
                 <td>{location.state}</td>
-                <td>{location.country}</td>
+                <td>{location.stationCode}</td>
                 <td>{location.postalCode}</td>
                 <td>
                   <div>
-                    <button id='locationBtnRemove' className='btn btn-danger' onClick={() => handleRemove(location.id)}>Remove</button>
+                    <button id='locationBtnUpdate' className='btn btn-warning me-4' onClick={() => handleUpdate(location)}>Update</button>
+                    <button id='locationBtnRemove' className='btn btn-danger' onClick={() => handleRemove(location.id)}>Delete</button>
+
                   </div>
                 </td>
               </tr>

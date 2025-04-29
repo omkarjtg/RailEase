@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { BsEyeSlashFill, BsEyeFill } from 'react-icons/bs';
-import { jwtDecode } from 'jwt-decode'; // Import jwtDecode
+import {jwtDecode} from 'jwt-decode';
 import { login } from '../services/AuthService';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import '../styles/Auth.css';
 
 const Login = ({ onLoginSuccess, onSwitchToSignup, onForgotPassword }) => {
-    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
@@ -22,7 +23,6 @@ const Login = ({ onLoginSuccess, onSwitchToSignup, onForgotPassword }) => {
         }),
         onSubmit: async (values) => {
             setLoading(true);
-            setError('');
             try {
                 const response = await login(values);
                 const { accessToken } = response;
@@ -44,8 +44,12 @@ const Login = ({ onLoginSuccess, onSwitchToSignup, onForgotPassword }) => {
 
                 // Pass userInfo to onLoginSuccess
                 onLoginSuccess({ ...userInfo, accessToken });
+
+                // Show success toast
+                toast.success('Login successful!');
             } catch (err) {
-                setError(err.message || 'Login failed. Please try again.');
+                console.error('Login failed:', err);
+                toast.error(err.message || 'Login failed. Please try again.');
             } finally {
                 setLoading(false);
             }
@@ -61,7 +65,6 @@ const Login = ({ onLoginSuccess, onSwitchToSignup, onForgotPassword }) => {
     return (
         <div className="auth-form">
             <h2>Login to RailEase</h2>
-            {error && <div className="error-message">{error}</div>}
             <form onSubmit={formik.handleSubmit}>
                 <div className="form-field">
                     <label htmlFor="identifier">Username or Email</label>

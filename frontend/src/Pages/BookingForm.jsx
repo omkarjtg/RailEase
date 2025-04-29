@@ -1,240 +1,190 @@
-import React, { useState, useEffect } from 'react';
-import { useFormik } from 'formik';
-import { useNavigate } from 'react-router-dom';
-import * as Yup from 'yup';
-import { MdSwapVert } from "react-icons/md";
+import { useState, useMemo } from 'react';
 import API from '../services/axios';
-import './BookingForm.css';
+import BookingSummaryPopup from '../partials/BookingSummaryPopup';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import '../styles/BookingForm.css';
+import { toast } from 'react-toastify';
 
-const BookingForm = () => {
-    const navigate = useNavigate();
-    const [locations, setLocations] = useState([]);
+export default function BookingForm({ train, onCancel }) {
+    const [seats, setSeats] = useState(1);
+    const [seatTier, setSeatTier] = useState('SLEEPER');
+    const [travelDate, setTravelDate] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [message, setMessage] = useState('');
+    const [showSummary, setShowSummary] = useState(false);
+    const [bookingPayload, setBookingPayload] = useState(null);
+    const [summaryData, setSummaryData] = useState(null);
 
-    const formik = useFormik({
-        initialValues: {
-            from: '',
-            to: '',
-            date: '',
-            personWithDisability: false,
-            flexibleWithDate: false,
-            trainWithAvailableBerth: false,
-            railwayPassConcession: false
-        },
-        validationSchema: Yup.object({
-            from: Yup.string().required('Departure station is required'),
-            to: Yup.string()
-                .required('Destination station is required')
-                .notOneOf([Yup.ref('from')], 'Departure and destination must be different'),
-            date: Yup.date()
-                .required('Date is required')
-                .min(new Date(), 'Date cannot be in the past')
-        }),
-        onSubmit: async (values) => {
-            setLoading(true);
-            setError(null);
-            try {
-                const response = await API.post('/booking', {
-                    from: values.from,
-                    to: values.to,
-                    date: values.date,
-                    preferences: {
-                        personWithDisability: values.personWithDisability,
-                        flexibleWithDate: values.flexibleWithDate,
-                        trainWithAvailableBerth: values.trainWithAvailableBerth,
-                        railwayPassConcession: values.railwayPassConcession
-                    }
-                });
-                navigate('/booking-confirmation', { state: { bookingId: response.data.id } });
-            } catch (err) {
-                setError(err.response?.data?.message || 'Failed to book ticket');
-                console.error('Booking error:', err);
-            } finally {
-                setLoading(false);
-            }
-        }
-    });
 
-    useEffect(() => {
-        const fetchLocations = async () => {
-            try {
-                const response = await API.get('/locations');
-                setLocations(response.data);
-            } catch (err) {
-                console.error('Error fetching locations:', err);
-            }
-        };
-        fetchLocations();
-    }, []);
-
-    const handleSwap = () => {
-        const temp = formik.values.from;
-        formik.setFieldValue('from', formik.values.to);
-        formik.setFieldValue('to', temp);
+    const tierMultiplier = {
+        SLEEPER: 1,
+        AC: 2,
+        GENERAL: 0.8,
     };
 
-    return (
-        <div className="container mt-4 booking-form">
-            <div className="row justify-content-center">
-                <div className="col-md-8">
-                    <h2 className="text-center mb-4">BOOK TICKET</h2>
-                    {error && <div className="alert alert-danger">{error}</div>}
-                    
-                    <form onSubmit={formik.handleSubmit}>
-                        <div className="row">
-                            <div className="col-md-6">
-                                <div className="mb-3">
-                                    <label htmlFor="from" className="form-label">From</label>
-                                    <select
-                                        id="from"
-                                        name="from"
-                                        className={`form-select ${formik.touched.from && formik.errors.from ? 'is-invalid' : ''}`}
-                                        value={formik.values.from}
-                                        onChange={formik.handleChange}
-                                        onBlur={formik.handleBlur}
-                                    >
-                                        <option value="">Select departure station</option>
-                                        {locations.map(location => (
-                                            <option key={location.id} value={location.city}>
-                                                {location.city} ({location.code})
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {formik.touched.from && formik.errors.from && (
-                                        <div className="invalid-feedback">{formik.errors.from}</div>
-                                    )}
-                                </div>
+    const totalPrice = useMemo(() => {
+        if (!train) return 0;
+        const basePrice = train.price || 0;
+        const multiplier = tierMultiplier[seatTier] || 1;
+        return basePrice * seats * multiplier;
+    }, [seats, seatTier, train]);
 
-                                <div className="d-flex justify-content-center mb-3">
-                                    <button 
-                                        type="button" 
-                                        className="btn btn-outline-secondary swap-btn"
-                                        onClick={handleSwap}
-                                        title="Swap stations"
-                                    >
-                                        <MdSwapVert size={24} />
-                                    </button>
-                                </div>
+    const getAllowedDays = () => {
+        const dayMap = {
+            sunday: 0,
+            monday: 1,
+            tuesday: 2,
+            wednesday: 3,
+            thursday: 4,
+            friday: 5,
+            saturday: 6,
+        };
+        return train?.runningDays?.map((day) => dayMap[day.toLowerCase()]) || [];
+    };
 
-                                <div className="mb-3">
-                                    <label htmlFor="to" className="form-label">To</label>
-                                    <select
-                                        id="to"
-                                        name="to"
-                                        className={`form-select ${formik.touched.to && formik.errors.to ? 'is-invalid' : ''}`}
-                                        value={formik.values.to}
-                                        onChange={formik.handleChange}
-                                        onBlur={formik.handleBlur}
-                                    >
-                                        <option value="">Select destination station</option>
-                                        {locations.map(location => (
-                                            <option key={location.id} value={location.city}>
-                                                {location.city} ({location.code})
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {formik.touched.to && formik.errors.to && (
-                                        <div className="invalid-feedback">{formik.errors.to}</div>
-                                    )}
-                                </div>
-                            </div>
+    const isDateAllowed = (date) => {
+        const allowedDays = getAllowedDays();
+        if (!allowedDays.length) return true; // Allow all dates if no runningDays
+        return allowedDays.includes(date.getDay());
+    };
 
-                            <div className="col-md-6">
-                                <div className="mb-3">
-                                    <label htmlFor="date" className="form-label">Date</label>
-                                    <input
-                                        type="date"
-                                        id="date"
-                                        name="date"
-                                        className={`form-control ${formik.touched.date && formik.errors.date ? 'is-invalid' : ''}`}
-                                        value={formik.values.date}
-                                        onChange={formik.handleChange}
-                                        onBlur={formik.handleBlur}
-                                        min={new Date().toISOString().split('T')[0]}
-                                    />
-                                    {formik.touched.date && formik.errors.date && (
-                                        <div className="invalid-feedback">{formik.errors.date}</div>
-                                    )}
-                                </div>
+    const handlePrepareBooking = () => {
+        if (!travelDate) {
+            toast.error('Please select a travel date.');
+            return;
+        }
 
-                                <div className="form-check mb-2">
-                                    <input
-                                        type="checkbox"
-                                        id="personWithDisability"
-                                        name="personWithDisability"
-                                        className="form-check-input"
-                                        checked={formik.values.personWithDisability}
-                                        onChange={formik.handleChange}
-                                    />
-                                    <label htmlFor="personWithDisability" className="form-check-label">
-                                        Person with disability
-                                    </label>
-                                </div>
+        if (!train) {
+            setMessage('❌ Train data is not available.');
+            return;
+        }
 
-                                <div className="form-check mb-2">
-                                    <input
-                                        type="checkbox"
-                                        id="flexibleWithDate"
-                                        name="flexibleWithDate"
-                                        className="form-check-input"
-                                        checked={formik.values.flexibleWithDate}
-                                        onChange={formik.handleChange}
-                                    />
-                                    <label htmlFor="flexibleWithDate" className="form-check-label">
-                                        Flexible with date (±2 days)
-                                    </label>
-                                </div>
+        const apiPayload = {
+            trainNumber: train.number,
+            seatTier: seatTier,
+            seatsBooked: seats,
+            travelDate: travelDate.toISOString().split('T')[0],
+        };
 
-                                <div className="form-check mb-2">
-                                    <input
-                                        type="checkbox"
-                                        id="trainWithAvailableBerth"
-                                        name="trainWithAvailableBerth"
-                                        className="form-check-input"
-                                        checked={formik.values.trainWithAvailableBerth}
-                                        onChange={formik.handleChange}
-                                    />
-                                    <label htmlFor="trainWithAvailableBerth" className="form-check-label">
-                                        Only trains with available berths
-                                    </label>
-                                </div>
+        const popupSummary = {
+            trainName: train.name,
+            seatsBooked: seats,
+            seatTier: seatTier,
+            travelDate: travelDate.toISOString().split('T')[0],
+            departureTime: train.departureTime,
+            arrivalTime: train.arrivalTime,
+            bookedPrice: totalPrice, // << important for popup
+        };
 
-                                <div className="form-check mb-3">
-                                    <input
-                                        type="checkbox"
-                                        id="railwayPassConcession"
-                                        name="railwayPassConcession"
-                                        className="form-check-input"
-                                        checked={formik.values.railwayPassConcession}
-                                        onChange={formik.handleChange}
-                                    />
-                                    <label htmlFor="railwayPassConcession" className="form-check-label">
-                                        Railway pass concession
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
+        setBookingPayload(apiPayload);
+        setSummaryData(popupSummary);
+        setShowSummary(true);
+    };
 
-                        <div className="text-center mt-4">
-                            <button 
-                                type="submit" 
-                                className="btn btn-primary search-btn"
-                                disabled={loading}
-                            >
-                                {loading ? (
-                                    <>
-                                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                        Searching...
-                                    </>
-                                ) : 'Search Trains'}
-                            </button>
-                        </div>
-                    </form>
-                </div>
+
+
+    const handleConfirmBooking = async () => {
+        if (!bookingPayload) return;
+        try {
+            setLoading(true);
+            await API.post('/api/booking', bookingPayload);
+            toast.success('Booking Successful');
+            setMessage('✅ Booking Successful!');
+        } catch (error) {
+            console.error('Booking error:', error);
+            toast.error('Booking Failed, try again');
+            setMessage('❌ Booking Failed. Try again.');
+        } finally {
+            setLoading(false);
+            setShowSummary(false);
+        }
+    };
+
+    if (!train) {
+        return (
+            <div className="message-container">
+                <p className="error">❌ Train data is not available.</p>
+                <button onClick={onCancel} className="cancel-button">Back</button>
             </div>
+        );
+    }
+
+    if (message) {
+        return (
+            <div className="message-container">
+                <p className={message.includes('Success') ? 'success' : 'error'}>{message}</p>
+                <button onClick={onCancel} className="cancel-button">Back</button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="booking-form-container">
+            <h2>Booking for {train.name}</h2>
+
+            <div className="form-group">
+                <label>Seats:</label>
+                <input
+                    type="number"
+                    min="1"
+                    value={seats}
+                    onChange={(e) => setSeats(parseInt(e.target.value) || 1)}
+                    step="1"
+                />
+            </div>
+
+            <div className="form-group">
+                <label>Seat Tier:</label>
+                <select
+                    value={seatTier}
+                    onChange={(e) => setSeatTier(e.target.value)}
+                >
+                    <option value="SLEEPER">Sleeper</option>
+                    <option value="AC">AC</option>
+                    <option value="GENERAL">General</option>
+                </select>
+            </div>
+
+            <div className="form-group">
+                <label>Travel Date:</label>
+                <DatePicker
+                    selected={travelDate}
+                    onChange={(date) => setTravelDate(date)}
+                    filterDate={isDateAllowed}
+                    minDate={new Date()} // Prevent past dates
+                    dateFormat="yyyy-MM-dd"
+                    className="form-control" // Match form input styling
+                    placeholderText="Select a date"
+                />
+            </div>
+
+            <div className="form-group total-price">
+                <strong>Total Price: ₹{totalPrice.toFixed(2)}</strong>
+            </div>
+
+            <div className="button-group">
+                <button
+                    onClick={handlePrepareBooking}
+                    disabled={loading}
+                    className="confirm-button"
+                >
+                    {loading ? 'Booking...' : 'Confirm Booking'}
+                </button>
+
+                <button onClick={onCancel} className="cancel-button">
+                    Cancel
+                </button>
+            </div>
+
+            <BookingSummaryPopup
+                show={showSummary}
+                handleClose={() => setShowSummary(false)}
+                bookingData={summaryData}
+                handleConfirm={handleConfirmBooking}
+                loading={loading}
+            />
+
         </div>
     );
-};
-
-export default BookingForm;
+}

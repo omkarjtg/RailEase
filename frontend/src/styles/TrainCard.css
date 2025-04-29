@@ -1,0 +1,193 @@
+/* TrainCard.css */
+
+/* Base Card */
+.train-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #eaeaea;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.train-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Route and Day Pills Container */
+.route-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* Vertically center route and pills */
+    margin: 0.5rem 0;
+}
+
+/* Day Pills */
+.day-pills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.day-pill {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    text-transform: uppercase;
+    color: white;
+    white-space: nowrap;
+    /* Prevent text wrapping */
+}
+
+.day-pill.na {
+    background: #e5e7eb;
+    color: #6b7280;
+}
+
+/* Day Colors */
+.day-pill {
+    background: rgb(121, 58, 209);
+    color: #ffffff;
+}
+
+
+/* Typography */
+.train-card h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+    color: #111827;
+}
+
+.train-number {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-left: 0.5rem;
+}
+
+.route {
+    color: #4b5563;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0;
+    /* Remove default margin to align with pills */
+}
+
+.timings {
+    display: flex;
+    gap: 1rem;
+    color: #020710;
+    font-size: 1rem;
+    margin: 0.5rem 0;
+}
+
+.price {
+    display: flex;
+    font-weight: 600;
+    flex-wrap: wrap;
+    color: #065f46;
+    font-size: 1.1rem;
+    margin: 0.75rem 0;
+    justify-content: flex-end;
+    /* Align pills to the right */
+}
+
+/* Buttons */
+.actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.book-btn,
+.update-btn,
+.delete-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    color: #ffffff;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.book-btn {
+    width: 100%;
+    background: #4cc0b8;
+    color: white;
+}
+
+.book-btn:hover {
+    background: #37918b'
+}
+
+.admin-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.update-btn {
+    background: #fbbf24;
+    color: #000000;
+}
+
+.update-btn:hover {
+    background: #f59e0b;
+}
+
+.delete-btn {
+    background: #dc2626;
+    color: white;
+}
+
+.delete-btn:hover {
+    background: #b91c1c;
+}
+
+.delete-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+    .train-card {
+        padding: 1rem;
+    }
+
+    .train-card h2 {
+        font-size: 1.125rem;
+    }
+
+    .train-number {
+        font-size: 0.8rem;
+    }
+
+    .route {
+        font-size: 0.9rem;
+    }
+
+    .day-pill {
+        font-size: 0.6rem;
+        padding: 0.2rem 0.5rem;
+    }
+
+    .timings {
+        font-size: 0.8rem;
+        gap: 0.75rem;
+    }
+
+    .price {
+        font-size: 1rem;
+    }
+
+    .book-btn,
+    .update-btn,
+    .delete-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+}

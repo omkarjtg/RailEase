@@ -38,15 +38,26 @@ public class LocationService {
     }
 
     public Location saveLocation(Location location) {
-        if (location == null || location.getCity() == null || location.getCity().trim().isEmpty()) {
+        if (location == null ||
+                location.getCity() == null || location.getCity().trim().isEmpty() ||
+                location.getStationCode() == null || location.getStationCode().trim().isEmpty()) {
             log.warn("Invalid location data provided: {}", location);
-            throw new IllegalArgumentException("Location and city name cannot be null or empty");
+            throw new IllegalArgumentException("Location, city name, and station code cannot be null or empty");
         }
+
+        // Check for duplicate city
         locationRepository.findByCity(location.getCity()).ifPresent(existing -> {
             log.warn("Attempt to save duplicate location for city: {}", location.getCity());
             throw new LocationAlreadyExistsException("Location already exists for city: " + location.getCity());
         });
-        log.info("Saving new location for city: {}", location.getCity());
+
+        // Check for duplicate station code
+        locationRepository.findByStationCode(location.getStationCode()).ifPresent(existing -> {
+            log.warn("Attempt to save duplicate station code: {}", location.getStationCode());
+            throw new LocationAlreadyExistsException("Location already exists with station code: " + location.getStationCode());
+        });
+
+        log.info("Saving new location for city: {}, station code: {}", location.getCity(), location.getStationCode());
         return locationRepository.save(location);
     }
 
@@ -60,6 +71,54 @@ public class LocationService {
                 .orElseThrow(() -> {
                     log.error("No location found with ID: {}", locationId);
                     return new LocationNotFoundException("No location found with ID: " + locationId);
+                });
+    }
+
+    public Location updateLocation(Long id, Location updatedLocation) {
+        if (id == null || id <= 0) {
+            log.warn("Invalid location ID provided for update: {}", id);
+            throw new IllegalArgumentException("Location ID must be a positive number");
+        }
+        if (updatedLocation == null ||
+                updatedLocation.getCity() == null || updatedLocation.getCity().trim().isEmpty() ||
+                updatedLocation.getStationCode() == null || updatedLocation.getStationCode().trim().isEmpty()) {
+            log.warn("Invalid location data provided for update: {}", updatedLocation);
+            throw new IllegalArgumentException("Location, city name, and station code cannot be null or empty");
+        }
+
+        log.info("Attempting to update location with ID: {}", id);
+
+        return locationRepository.findById(id)
+                .map(existingLocation -> {
+                    // Check for city name conflict
+                    if (!existingLocation.getCity().equalsIgnoreCase(updatedLocation.getCity())) {
+                        locationRepository.findByCity(updatedLocation.getCity()).ifPresent(conflict -> {
+                            log.warn("City name conflict during update. Existing city: {}", updatedLocation.getCity());
+                            throw new LocationAlreadyExistsException("Location already exists for city: " + updatedLocation.getCity());
+                        });
+                    }
+
+                    // Check for station code conflict
+                    if (!existingLocation.getStationCode().equalsIgnoreCase(updatedLocation.getStationCode())) {
+                        locationRepository.findByStationCode(updatedLocation.getStationCode()).ifPresent(conflict -> {
+                            log.warn("Station code conflict during update. Existing station code: {}", updatedLocation.getStationCode());
+                            throw new LocationAlreadyExistsException("Location already exists with station code: " + updatedLocation.getStationCode());
+                        });
+                    }
+
+                    // Update all fields
+                    existingLocation.setCity(updatedLocation.getCity());
+                    existingLocation.setState(updatedLocation.getState());
+                    existingLocation.setPostalCode(updatedLocation.getPostalCode());
+                    existingLocation.setStationCode(updatedLocation.getStationCode());
+
+                    log.info("Updating location with ID: {}, city: {}, station code: {}",
+                            id, existingLocation.getCity(), existingLocation.getStationCode());
+                    return locationRepository.save(existingLocation);
+                })
+                .orElseThrow(() -> {
+                    log.error("No location found with ID for update: {}", id);
+                    return new LocationNotFoundException("No location found with ID: " + id);
                 });
     }
 

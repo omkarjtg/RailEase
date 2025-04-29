@@ -11,6 +11,8 @@
     import org.springframework.security.core.Authentication;
     import org.springframework.web.bind.annotation.*;
 
+    import java.util.Optional;
+
     @RestController
     @RequestMapping("/api/auth")
     @RequiredArgsConstructor
@@ -32,6 +34,24 @@
             log.info("Register attempt: {}", registerRequest.getEmail());
             TokenResponse tokenResponse = authService.registerUser(registerRequest);
             return ResponseEntity.ok(tokenResponse);
+        }
+
+        @GetMapping("/users/{id}")
+        public ResponseEntity<UserDTO> getUserById(@PathVariable long id) {
+            log.info("Feign user attempt detected : {}", id);
+            Optional<User> userOptional = userRepo.findById(id);
+
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                UserDTO response = new UserDTO();
+                response.setId(user.getId());
+                response.setEmail(user.getEmail());
+                response.setName(user.getFullName());
+                response.setRole(user.getRole());
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         }
 
         @GetMapping("/profile")

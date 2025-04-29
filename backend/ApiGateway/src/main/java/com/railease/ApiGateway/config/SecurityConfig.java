@@ -1,6 +1,6 @@
 package com.railease.ApiGateway.config;
 
-import com.railease.ApiGateway.config.JwtServerSecurityContextRepository;
+
 import com.railease.ApiGateway.utils.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,16 +9,11 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
-import org.springframework.web.cors.reactive.CorsConfigurationSource;
-import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
-import org.springframework.web.cors.CorsConfiguration;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -31,17 +26,41 @@ public class SecurityConfig {
             ServerSecurityContextRepository securityContextRepository
     ) {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .securityContextRepository(securityContextRepository)
                 .authorizeExchange(exchanges -> exchanges
+                        // UserService
                         .pathMatchers("/api/auth/**").permitAll()
-                        .pathMatchers(HttpMethod.GET, "/api/locations").permitAll()
+                        .pathMatchers(HttpMethod.GET, "/api/auth/profile").authenticated()
+                        // NotificationService
+                        .pathMatchers(HttpMethod.POST, "/api/notify").permitAll()
+                        // PaymentService
+                        .pathMatchers(HttpMethod.GET, "/api/payment").authenticated()
+                        .pathMatchers(HttpMethod.POST, "/api/payment").authenticated()
+                        // FeedbackService
+                        .pathMatchers(HttpMethod.POST, "/api/feedback").authenticated()
+                        .pathMatchers(HttpMethod.GET, "/api/feedback/my").authenticated()
+                        .pathMatchers(HttpMethod.GET, "/api/feedback/all").hasRole("ADMIN")
+                        // BookingService
+                        .pathMatchers(HttpMethod.POST, "/api/booking").authenticated()
+                        .pathMatchers(HttpMethod.GET, "/api/booking/my").authenticated()
+                        .pathMatchers(HttpMethod.GET, "/api/booking/all").hasRole("ADMIN")
+                        .pathMatchers(HttpMethod.PUT, "/api/booking/**").authenticated()
+                        // TrainService
+                        .pathMatchers(HttpMethod.GET, "/api/trains/**").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/api/trains/**").hasRole("ADMIN")
+                        .pathMatchers(HttpMethod.PUT, "/api/trains/**").hasRole("ADMIN")
+                        .pathMatchers(HttpMethod.DELETE, "/api/trains/**").hasRole("ADMIN")
+                        // LocationService
+                        .pathMatchers(HttpMethod.GET, "/api/locations/**").permitAll()
+                        .pathMatchers(HttpMethod.GET, "/api/debug/**").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/api/locations/**").hasRole("ADMIN")
+                        .pathMatchers(HttpMethod.PUT, "/api/locations/**").hasRole("ADMIN")
+                        .pathMatchers(HttpMethod.DELETE, "/api/locations/**").hasRole("ADMIN")
+                        // Other
                         .pathMatchers("/favicon.ico").permitAll()
                         .pathMatchers("/api/public/**").permitAll()
-                        .pathMatchers("/api/debug/**").permitAll() // For testing
-                        .pathMatchers(HttpMethod.DELETE, "/api/locations/**").hasRole("ADMIN")
-//                        .pathMatchers(HttpMethod.POST, "/api/locations/**").hasRole("ADMIN")
+                        .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow preflight requests
                         .anyExchange().authenticated()
                 )
                 .logout(logout -> logout.disable());
@@ -62,30 +81,15 @@ public class SecurityConfig {
                     String username = jwtUtil.getUsernameFromToken(token);
                     String role = jwtUtil.getRoleFromToken(token);
                     List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+                    System.out.println("AuthenticationManager: Set authorities: " + authorities);
                     return Mono.just(new UsernamePasswordAuthenticationToken(username, token, authorities));
                 }
+                System.out.println("AuthenticationManager: Token validation failed");
                 return Mono.empty();
             } catch (Exception e) {
-                System.err.println("Authentication error: " + e.getMessage());
+                System.err.println("AuthenticationManager error: " + e.getMessage());
                 return Mono.empty();
             }
         };
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:5173"
-//                ,"https://your-frontend-domain.com"
-        ));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 }

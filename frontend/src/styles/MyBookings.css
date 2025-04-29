@@ -1,0 +1,260 @@
+.booking-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.booking-container h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #2d3748;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.no-bookings {
+  text-align: center;
+  color: #718096;
+  font-size: 1.1rem;
+  padding: 1rem;
+}
+
+.booking-list {
+  overflow-x: auto;
+}
+
+.booking-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  font-size: 0.95rem;
+}
+
+.booking-table th,
+.booking-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.booking-table th {
+  background-color: #4a5568;
+  color: #fff;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+
+.booking-table td {
+  color: #2d3748;
+}
+
+.booking-table tr:hover {
+  background-color: #f7fafc;
+}
+
+.status {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.status.confirmed {
+  background-color: #d4f7d4;
+  color: #2f855a;
+}
+
+.status.cancelled {
+  background-color: #fed7d7;
+  color: #c53030;
+}
+
+.cancel-button {
+  padding: 0.5rem 1rem;
+  background-color: #e53e3e;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.cancel-button:hover {
+  background-color: #c53030;
+}
+
+.cancel-button:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.no-action {
+  color: #718096;
+  font-size: 0.9rem;
+}
+
+.error-text {
+  color: #c53030;
+  text-align: center;
+  font-size: 1.1rem;
+  padding: 1rem;
+}
+.booking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.print-button {
+  background-color: #3182ce;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.print-button:hover {
+  background-color: #2b6cb0;
+}
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #2d3748;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #718096;
+  transition: color 0.2s;
+}
+
+.close-button:hover {
+  color: #e53e3e;
+}
+
+.modal-body {
+  margin-bottom: 2rem;
+}
+
+.booking-detail {
+  display: flex;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.booking-detail:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #4a5568;
+  min-width: 120px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Clickable row */
+.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.clickable-row:hover {
+  background-color: #f7fafc;
+}
+
+/* Animation */
+@keyframes modalFadeIn {
+  from {
+      opacity: 0;
+      transform: translateY(-20px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
+/* Print specific styles */
+@media print {
+  .modal-overlay {
+      position: static;
+      background: none;
+  }
+  
+  .modal-content {
+      box-shadow: none;
+      width: 100%;
+      max-width: 100%;
+      padding: 0;
+  }
+  
+  .modal-header, .modal-footer {
+      display: none;
+  }
+  
+  .booking-detail {
+      display: block;
+      margin-bottom: 0.5rem;
+  }
+  
+  .detail-label {
+      display: inline-block;
+      width: 120px;
+  }
+
+  
+}

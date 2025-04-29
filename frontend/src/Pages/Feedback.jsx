@@ -1,104 +1,136 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { toast } from 'react-toastify';
+import { getAllFeedbacks, getMyFeedbacks, submitFeedback } from '../services/FeedbackService';
+import { getMyBookings } from '../services/BookingService';
+import '../styles/Feedback.css';
 
-const API_URL = 'http://localhost:8085/feedback'; // Adjust the URL if needed
-
-const FeedbackForm = () => {
-    const [feedback, setFeedback] = useState('');
+const FeedbackForm = ({ user }) => {
     const [feedbackList, setFeedbackList] = useState([]);
-    const [deleteId, setDeleteId] = useState('');
+    const [bookings, setBookings] = useState([]);
+    const [formData, setFormData] = useState({ bookingId: '', comments: '', rating: 0 });
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
     useEffect(() => {
-        fetchFeedback();
-    }, []);
+        if (!user) return;
+        fetchFeedbacks();
+        fetchBookings();
+    }, [user]);
 
-    const fetchFeedback = async () => {
+    const fetchFeedbacks = async () => {
         try {
-            const response = await axios.get(API_URL);
-            setFeedbackList(response.data);
-        } catch (error) {
-            setError('Error fetching feedback');
+            const feedbacks = user.isAdmin ? await getAllFeedbacks() : await getMyFeedbacks();
+            setFeedbackList(feedbacks);
+        } catch (err) {
+            toast.error(err.message || 'Failed to load feedback');
+            setError(err.message);
         }
+    };
+
+    const fetchBookings = async () => {
+        try {
+            const bookingsData = await getMyBookings();
+            setBookings(bookingsData);
+        } catch (err) {
+            toast.error(err.message || 'Failed to load bookings');
+            setError(err.message);
+        }
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleStarClick = (rating) => {
+        setFormData(prev => ({ ...prev, rating }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
+        const { bookingId, comments, rating } = formData;
+        if (!bookingId || !comments.trim() || !rating) {
+            toast.error('All fields are required');
+            return;
+        }
+
         try {
-            await axios.post(API_URL, { message: feedback });
-            setFeedback('');
-            fetchFeedback(); // Refresh the feedback list
-        } catch (error) {
-            setError('Error submitting feedback');
+            setLoading(true);
+            await submitFeedback({
+                bookingId,
+                comments: comments.trim(),
+                rating,
+            });
+            toast.success('Feedback submitted successfully');
+            setFormData({ bookingId: '', comments: '', rating: 0 });
+            fetchFeedbacks();
+        } catch (err) {
+            toast.error(err.message || 'Failed to submit feedback');
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleDelete = async () => {
-        setError('');
-        try {
-            await axios.delete(`${API_URL}/${deleteId}`);
-            setDeleteId('');
-            fetchFeedback(); // Refresh the feedback list
-        } catch (error) {
-            setError('Error deleting feedback');
-        }
+    const formatTravelDate = (date) => {
+        return new Intl.DateTimeFormat('en-US', {
+            day: '2-digit',
+            month: 'short', // Abbreviated month (e.g., Apr)
+            year: 'numeric',
+        }).format(new Date(date));
     };
 
     return (
-        <div className="container">
-            <h1>Feedback Form</h1>
-            
-            {/* Submit Feedback Form */}
-            <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                    <label htmlFor="feedbackInput" className="form-label">Feedback</label>
-                    <textarea
-                        id="feedbackInput"
-                        className="form-control"
-                        rows="4"
-                        value={feedback}
-                        onChange={(e) => setFeedback(e.target.value)}
-                        required
-                    ></textarea>
+        <div className="feedback-container">
+            <h2>Feedback Form</h2>
+            {error && <p className="error-text">{error}</p>}
+
+            <form className="feedback-form" onSubmit={handleSubmit}>
+                <label htmlFor="bookingId">Booking:</label>
+                <select name="bookingId" value={formData.bookingId} onChange={handleChange} required>
+                    <option value="">Select a booking</option>
+                    {bookings.map(booking => (
+                        <option key={booking.id} value={booking.id}>
+                            {booking.trainName} {formatTravelDate(booking.travelDate)} ({booking.status})
+                        </option>
+                    ))}
+                </select>
+
+                <label htmlFor="comments">Comments:</label>
+                <textarea
+                    name="comments"
+                    rows="4"
+                    value={formData.comments}
+                    onChange={handleChange}
+                    placeholder="Write your feedback here..."
+                    required
+                />
+
+                <label htmlFor="rating">Rating:</label>
+                <div className="star-rating">
+                    {[1, 2, 3, 4, 5].map(star => (
+                        <span
+                            key={star}
+                            className={`star ${formData.rating >= star ? 'filled' : ''}`}
+                            onClick={() => handleStarClick(star)}
+                        >
+                            ★
+                        </span>
+                    ))}
                 </div>
-                <button type="submit" className="btn btn-primary">Submit Feedback</button>
+
+                <button type="submit" disabled={loading}>
+                    {loading ? 'Submitting...' : 'Submit Feedback'}
+                </button>
             </form>
 
-            {/* Delete Feedback Form */}
-            <div className="mt-4">
-                <h2>Delete Feedback</h2>
-                <div className="mb-3">
-                    <label htmlFor="deleteIdInput" className="form-label">Feedback ID</label>
-                    <input
-                        id="deleteIdInput"
-                        type="text"
-                        className="form-control"
-                        value={deleteId}
-                        onChange={(e) => setDeleteId(e.target.value)}
-                        required
-                    />
-                </div>
-                <button
-                    type="button"
-                    className="btn btn-danger"
-                    onClick={handleDelete}
-                >
-                    Delete Feedback
-                </button>
-            </div>
-
-            {/* Feedback List */}
-            <div className="mt-4">
-                <h1 className="mb-4">Feedback List</h1>
-                <ul className="list-group">
-                   {feedbackList.map((fb, index) => (
-                        <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
-                           <span>{fb.message}</span>
-                        </li>
-                    ))}
-                </ul>
-            </div>
+            <h3>{user?.isAdmin ? 'All Feedback' : 'Your Feedback'}</h3>
+            <ul className="feedback-list">
+                {feedbackList.map(feedback => (
+                    <li key={feedback.id}>
+                        <strong>Booking #{feedback.bookingId}</strong>: "{feedback.comments}" — <em>{feedback.rating}/5</em>
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 };

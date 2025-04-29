@@ -1,10 +1,11 @@
 package com.railease.trains.dto;
 
+import com.railease.trains.entity.TrainDaysOfWeek;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -16,7 +17,7 @@ public class TrainRequestDTO {
         private int totalCoach;
         private int seatPerCoach;
         private double price;
-        private LocalDate schedule;
+        private Set<TrainDaysOfWeek> runningDays;
         private LocalTime departureTime;
         private LocalTime arrivalTime;
 }

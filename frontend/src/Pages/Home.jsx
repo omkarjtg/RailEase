@@ -1,5 +1,5 @@
 import React from 'react';
-import './Home.css'; // Make sure this path matches your file structure
+import '../styles/Home.css'; // Make sure this path matches your file structure
 
 const HomePage = () => {
     return (

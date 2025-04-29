@@ -1,0 +1,127 @@
+/* AddTrains.css */
+.add-train-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.add-train-container h2 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-weight: 600;
+}
+
+.train-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.train-form label {
+    font-weight: 500;
+    color: #1b1f23;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.train-form .form-control,
+.train-form .form-select {
+    border-radius: 5px;
+    border: 1px solid #434445;
+    padding: 0.75rem;
+    transition: border-color 0.3s ease;
+}
+
+.train-form .form-control:focus,
+.train-form .form-select:focus {
+    border-color: #434445;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.days-of-week-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    background-color: #f1f3f5;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-top: 0.5rem;
+}
+
+.train-days-checkbox {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    transition: all 0.2s ease;
+}
+
+.train-days-checkbox:hover {
+    background-color: #e9ecef;
+}
+
+.train-days-checkbox input {
+    margin-right: 0.5rem;
+    border-color: #434445;
+
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    background-color: #0d2e50;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: #234a72;
+}
+
+.error-window {
+    text-align: center;
+    padding: 2rem;
+    background-color: #f8d7da;
+    color: #721c24;
+    border-radius: 5px;
+    margin: 2rem auto;
+    max-width: 600px;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+/* Additional styles for UpdateLocationForm */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.cancel-btn {
+    width: 100%;
+    padding: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    background-color: #6c757d;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.cancel-btn:hover {
+    background-color: #5a6268;
+}
+
+@media (max-width: 768px) {
+    .days-of-week-container {
+        grid-template-columns: 1fr;
+    }
+
+    .add-train-container {
+        padding: 1rem;
+    }
+}

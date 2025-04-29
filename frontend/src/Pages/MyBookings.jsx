@@ -1,116 +1,184 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import API from '../services/axios';
-import './MyBookings.css';
+import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
+import { getMyBookings, cancelBooking } from '../services/BookingService';
+import '../styles/MyBookings.css';
 
-const MyBookings = () => {
+const BookingDetails = ({ user }) => {
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [cancelling, setCancelling] = useState(null);
+    const [selectedBooking, setSelectedBooking] = useState(null);
+    const [showModal, setShowModal] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchBookings = async () => {
-            try {
-                const response = await API.get('/booking/my');
-                setBookings(response.data);
-            } catch (err) {
-                setError(err.response?.data?.message || 'Failed to load bookings');
-                console.error('Booking fetch error:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
+        if (!user) {
+            toast.error('Please log in to view your bookings');
+            navigate('/login');
+            return;
+        }
         fetchBookings();
-    }, []);
+    }, [user, navigate]);
 
-    const handleCancel = async (bookingId) => {
-        if (!window.confirm('Are you sure you want to cancel this booking?')) return;
-        
+    const fetchBookings = async () => {
         try {
-            await API.put(`/booking/${bookingId}/cancel`);
-            setBookings(bookings.filter(booking => booking.id !== bookingId));
+            const bookingsData = await getMyBookings();
+            setBookings(bookingsData);
+            setLoading(false);
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to cancel booking');
+            setError(err.message || 'Failed to load bookings');
+            toast.error(err.message || 'Failed to load bookings');
+            setLoading(false);
         }
     };
 
-    const formatDate = (dateString) => {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(dateString).toLocaleDateString(undefined, options);
+    const handleCancel = async (bookingId, travelDate) => {
+        const travelDateObj = new Date(travelDate);
+        if (travelDateObj <= new Date()) {
+            toast.error('Cannot cancel past bookings');
+            return;
+        }
+
+        const result = await Swal.fire({
+            title: 'Cancel Booking?',
+            text: 'Refund will be processed within 2-5 business days.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e53e3e',
+            cancelButtonColor: '#a0aec0',
+            confirmButtonText: 'Yes, cancel it!'
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            setCancelling(bookingId);
+            const token = localStorage.getItem('token') || user?.token;
+            if (!token) throw new Error('Authentication token not found');
+
+            await cancelBooking(bookingId, token);
+            toast.success('Booking cancelled successfully');
+            await fetchBookings();
+            setShowModal(false);
+        } catch (err) {
+            toast.error(err.message || 'Failed to cancel booking');
+        } finally {
+            setCancelling(null);
+        }
     };
 
-    const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR'
-        }).format(amount);
+    const handleRowClick = (booking) => {
+        setSelectedBooking(booking);
+        setShowModal(true);
     };
 
-    if (loading) return <div className="text-center mt-5"><div className="spinner-border" role="status"></div></div>;
-    if (error) return <div className="alert alert-danger">{error}</div>;
+    const handlePrint = () => {
+        const printWindow = window.open('', '', 'width=800,height=600');
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Booking #${selectedBooking.id}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        .print-container { max-width: 600px; margin: 0 auto; }
+                        .print-header { text-align: center; margin-bottom: 20px; }
+                        .print-detail { margin-bottom: 10px; }
+                        .detail-label { font-weight: bold; display: inline-block; width: 150px; }
+                        .print-footer { margin-top: 30px; text-align: center; font-size: 12px; color: #666; }
+                        @page { size: auto; margin: 10mm; }
+                    </style>
+                </head>
+                <body>
+                    <div class="print-container">
+                        <div class="print-header">
+                            <h2>Booking Confirmation</h2>
+                            <p>Booking ID: #${selectedBooking.id}</p>
+                        </div>
+                        <div class="print-detail">
+                            <span class="detail-label">Train:</span>
+                            <span>${selectedBooking.trainNumber} - ${selectedBooking.trainName}</span>
+                        </div>
+                        <div class="print-detail">
+                            <span class="detail-label">Route:</span>
+                            <span>${selectedBooking.source} to ${selectedBooking.destination}</span>
+                        </div>
+                        <div class="print-detail">
+                            <span class="detail-label">Travel Date:</span>
+                            <span>${new Date(selectedBooking.travelDate).toLocaleDateString()}</span>
+                        </div>
+                        <div class="print-detail">
+                            <span class="detail-label">Seat Tier:</span>
+                            <span>${selectedBooking.seatTier}</span>
+                        </div>
+                        <div class="print-detail">
+                            <span class="detail-label">Price:</span>
+                            <span>₹${selectedBooking.bookedPrice?.toFixed(2) || 'N/A'}</span>
+                        </div>
+                        <div class="print-detail">
+                            <span class="detail-label">Status:</span>
+                            <span>${selectedBooking.status}</span>
+                        </div>
+                        <div class="print-footer">
+                            <p>Thank you for choosing our service</p>
+                            <p>Printed on ${new Date().toLocaleString()}</p>
+                        </div>
+                    </div>
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+        }, 500);
+    };
 
-    return (
-        <div className="container my-5">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h2>My Bookings</h2>
-                <button className="btn btn-primary" onClick={() => navigate('/book')}>
-                    New Booking
-                </button>
-            </div>
+    const currentDate = new Date();
+    const upcomingBookings = bookings.filter(b => new Date(b.travelDate) > currentDate);
+    const pastBookings = bookings.filter(b => new Date(b.travelDate) <= currentDate);
 
-            {bookings.length === 0 ? (
-                <div className="alert alert-info">
-                    You have no bookings yet. Click "New Booking" to book a ticket.
-                </div>
+    const renderTable = (list, title) => (
+        <>
+            <h3>{title}</h3>
+            {list.length === 0 ? (
+                <p className="no-bookings">No {title.toLowerCase()} found.</p>
             ) : (
-                <div className="table-responsive">
-                    <table className="table table-hover booking-table">
-                        <thead className="table-dark">
+                <div className="booking-list">
+                    <table className="booking-table">
+                        <thead>
                             <tr>
+                                <th>Booking ID</th>
                                 <th>Train</th>
-                                <th>Route</th>
-                                <th>Date</th>
-                                <th>Class</th>
-                                <th>Fare</th>
+                                <th>Source</th>
+                                <th>Destination</th>
+                                <th>Travel Date</th>
+                                <th>Price</th>
+                                <th>Seat Tier</th>
                                 <th>Status</th>
-                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {bookings.map(booking => (
-                                <tr key={booking.id} className={booking.status === 'CANCELLED' ? 'table-secondary' : ''}>
+                            {list.map((booking) => (
+                                <tr 
+                                    key={booking.id} 
+                                    onClick={() => handleRowClick(booking)}
+                                    className="clickable-row"
+                                >
+                                    <td>#{booking.id}</td>
+                                    <td>{booking.trainNumber} - {booking.trainName}</td>
+                                    <td>{booking.source || 'N/A'}</td>
+                                    <td>{booking.destination || 'N/A'}</td>
+                                    <td>{booking.travelDate ? new Date(booking.travelDate).toLocaleDateString() : 'N/A'}</td>
+                                    <td>{booking.bookedPrice ? `₹${booking.bookedPrice.toFixed(2)}` : 'N/A'}</td>
+                                    <td>{booking.seatTier || 'N/A'}</td>
                                     <td>
-                                        <div className="fw-bold">{booking.trainName}</div>
-                                        <small className="text-muted">{booking.trainNumber}</small>
-                                    </td>
-                                    <td>
-                                        <div>{booking.from} → {booking.to}</div>
-                                        <small className="text-muted">
-                                            Dep: {new Date(booking.departureTime).toLocaleTimeString()}
-                                        </small>
-                                    </td>
-                                    <td>{formatDate(booking.date)}</td>
-                                    <td>{booking.class}</td>
-                                    <td>{formatCurrency(booking.fare)}</td>
-                                    <td>
-                                        <span className={`badge ${
-                                            booking.status === 'CONFIRMED' ? 'bg-success' :
-                                            booking.status === 'CANCELLED' ? 'bg-secondary' :
-                                            'bg-warning text-dark'
-                                        }`}>
-                                            {booking.status}
+                                        <span className={`status ${booking.status?.toLowerCase()}`}>
+                                            {booking.status || 'N/A'}
                                         </span>
-                                    </td>
-                                    <td>
-                                        {booking.status !== 'CANCELLED' && (
-                                            <button 
-                                                className="btn btn-sm btn-outline-danger"
-                                                onClick={() => handleCancel(booking.id)}
-                                            >
-                                                Cancel
-                                            </button>
-                                        )}
                                     </td>
                                 </tr>
                             ))}
@@ -118,8 +186,84 @@ const MyBookings = () => {
                     </table>
                 </div>
             )}
+        </>
+    );
+
+    if (loading) return <div className="booking-container">Loading bookings...</div>;
+    if (error) return <div className="booking-container error-text">{error}</div>;
+
+    return (
+        <div className="booking-container">
+            <h2>My Bookings</h2>
+            
+            {renderTable(upcomingBookings, 'Upcoming Bookings')}
+            {renderTable(pastBookings, 'Past Bookings')}
+
+            {/* Booking Details Modal */}
+            {showModal && selectedBooking && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h3>Booking Details #{selectedBooking.id}</h3>
+                            <button 
+                                className="close-button" 
+                                onClick={() => setShowModal(false)}
+                            >
+                                &times;
+                            </button>
+                        </div>
+                        
+                        <div className="modal-body">
+                            <div className="booking-detail">
+                                <span className="detail-label">Train:</span>
+                                <span>{selectedBooking.trainNumber} - {selectedBooking.trainName}</span>
+                            </div>
+                            <div className="booking-detail">
+                                <span className="detail-label">Route:</span>
+                                <span>{selectedBooking.source} to {selectedBooking.destination}</span>
+                            </div>
+                            <div className="booking-detail">
+                                <span className="detail-label">Travel Date:</span>
+                                <span>{new Date(selectedBooking.travelDate).toLocaleDateString()}</span>
+                            </div>
+                            <div className="booking-detail">
+                                <span className="detail-label">Seat Tier:</span>
+                                <span>{selectedBooking.seatTier}</span>
+                            </div>
+                            <div className="booking-detail">
+                                <span className="detail-label">Price:</span>
+                                <span>₹{selectedBooking.bookedPrice?.toFixed(2) || 'N/A'}</span>
+                            </div>
+                            <div className="booking-detail">
+                                <span className="detail-label">Status:</span>
+                                <span className={`status ${selectedBooking.status?.toLowerCase()}`}>
+                                    {selectedBooking.status}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div className="modal-footer">
+                            {new Date(selectedBooking.travelDate) > currentDate && selectedBooking.status === 'CONFIRMED' && (
+                                <button
+                                    className="cancel-button"
+                                    onClick={() => handleCancel(selectedBooking.id, selectedBooking.travelDate)}
+                                    disabled={cancelling === selectedBooking.id}
+                                >
+                                    {cancelling === selectedBooking.id ? 'Cancelling...' : 'Cancel Booking'}
+                                </button>
+                            )}
+                            <button 
+                                className="print-button" 
+                                onClick={handlePrint}
+                            >
+                                🖨️ Print Booking
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
-export default MyBookings;
+export default BookingDetails;

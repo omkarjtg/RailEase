@@ -11,21 +11,41 @@ import AboutUs from './Pages/AboutUs';
 import FeedbackForm from './Pages/Feedback';
 import AllLocations from './Pages/Locations';
 import ScheduledTrains from './Pages/ScheduledTrain';
-import Search from './partials/SearchResults';
 import MockBookedPage from './Pages/MockBookedPage';
 import HomePage from './Pages/Home';
 import UpdateTrainForm from './Pages/UpdateTrainForm';
 import ResetPassword from './partials/ResetPassword';
-import ProtectedRoute from './utils/ProtectedRoute'; // Import the ProtectedRoute component
+import ProtectedRoute from './utils/ProtectedRoute';
+import { ToastContainer } from 'react-toastify';
+import { getAllTrains } from './services/TrainService';
 
 function App() {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
-  const [authMode, setAuthMode] = useState('login'); // 'login', 'register', or 'forgot'
+  const [authMode, setAuthMode] = useState('login');
+  const [trains, setTrains] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [user, setUser] = useState(null); // Add user state
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Check for existing user session (e.g., from localStorage or API)
   useEffect(() => {
-    // Handle auth-related routes through the popup
+    const checkUserSession = async () => {
+      try {
+        // Example: Fetch user data from an API or localStorage
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+        }
+      } catch (err) {
+        console.error('Error checking user session:', err);
+      }
+    };
+    checkUserSession();
+  }, []);
+
+  useEffect(() => {
     if (location.pathname === '/login') {
       setShowAuthPopup(true);
       setAuthMode('login');
@@ -48,42 +68,77 @@ function App() {
     }
   }, [location]);
 
+  // Fetch all trains on mount
+  useEffect(() => {
+    const fetchTrains = async () => {
+      try {
+        const data = await getAllTrains();
+        setTrains(data);
+      } catch (error) {
+        setError('Error fetching trains: ' + error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTrains();
+  }, []);
+
   const handlePopupClose = () => {
     setShowAuthPopup(false);
     navigate('/');
   };
 
   const handleAuthSuccess = (userData) => {
+    setUser(userData); // Store user data
+    localStorage.setItem('user', JSON.stringify(userData)); // Persist user data (optional)
     setShowAuthPopup(false);
     navigate('/');
   };
 
+  // Loading and error handling
+  if (loading) {
+    return <div>Loading trains...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
   return (
     <>
       <Navbar />
+      <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/book" element={<BookingForm />} />
-        <Route path="/myBookings/:userId" element={<BookingDetails />} />
-        <Route path="/results" element={<Search />} />
-        <Route path="/trains" element={<TrainList />} />
-        
-        {/* Protected Route for AddTrains */}
-        <Route 
-          path="/addTrains" 
-          element={<ProtectedRoute element={<AddTrains />} allowedRoles={['ADMIN']} />} 
+        <Route path="/book" element={<BookingForm train={trains[0]} />} />
+        <Route
+          path="/myBookings"
+          element={user ? <BookingDetails user={user} /> : <Navigate to="/login" replace />}
+        />  
+        <Route path="/trains" element={<TrainList trains={trains} />} />
+        <Route
+          path="/addTrains"
+          element={<ProtectedRoute element={<AddTrains />} allowedRoles={['ADMIN']} />}
         />
-        
         <Route path="/update-train/:trainId" element={<UpdateTrainForm />} />
         <Route path="/aboutUs" element={<AboutUs />} />
-        <Route path="/feedback" element={<FeedbackForm />} />
-        <Route path="/scheduled" element={<ScheduledTrains />} />
+        <Route
+          path="/feedback"
+          element={
+            user ? (
+              <FeedbackForm user={user} />
+            ) : (
+              <Navigate to="/login" replace /> // Redirect to login if user is not authenticated
+            )
+          }
+        />
+        <Route path="/scheduled" Sonalelement={<ScheduledTrains />} />
         <Route path="/booked" element={<MockBookedPage />} />
         <Route path="/location" element={<AllLocations />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        
-        {/* Redirects for auth paths */}
-        <Route path="/login" element={<Navigate to="/" />} />
+        {/* Redirecting unwanted routes */}
+        <Route path="/login" element={<Popup />} />
         <Route path="/register" element={<Navigate to="/" />} />
         <Route path="/forgot-password" element={<Navigate to="/" />} />
       </Routes>

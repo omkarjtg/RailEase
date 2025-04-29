@@ -3,10 +3,11 @@ import { useFormik } from 'formik';
 import { BsEyeSlashFill, BsEyeFill } from "react-icons/bs";
 import * as Yup from 'yup';
 import { login, register } from '../services/AuthService';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import '../styles/Auth.css';
 
 const Signup = ({ onSignupSuccess, onSwitchToLogin }) => {
-    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -32,17 +33,12 @@ const Signup = ({ onSignupSuccess, onSwitchToLogin }) => {
             password: Yup.string()
                 .required('Password is required')
                 .min(8, 'Password must be at least 8 characters'),
-            // .matches(
-            //     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-            //     'Password must contain at least one uppercase, one lowercase, one number, and one special character'
-            // ),
             confirmPassword: Yup.string()
                 .oneOf([Yup.ref('password'), null], 'Passwords must match')
                 .required('Please confirm your password'),
         }),
         onSubmit: async (values) => {
             setLoading(true);
-            setError('');
             try {
                 // First, register the user
                 await register({
@@ -54,23 +50,27 @@ const Signup = ({ onSignupSuccess, onSwitchToLogin }) => {
 
                 // Then automatically log them in
                 const loginResponse = await login({
-                    identifier: values.username, // or values.email if you prefer email login
+                    identifier: values.username,
                     password: values.password
                 });
 
                 // Pass the user data to the parent component
                 onSignupSuccess(loginResponse.user);
+
+                // Show success toast
+                toast.success('Signup successful! Welcome to RailEase.');
             } catch (err) {
-                setError(err.response?.data?.message || err.message || 'Signup failed. Please try again.');
+                console.error('Signup failed:', err);
+                toast.error(err.response?.data?.message || 'Signup failed. Please try again.');
             } finally {
                 setLoading(false);
             }
         },
     });
+
     return (
         <div className="auth-form">
             <h2>Create Your RailEase Account</h2>
-            {error && <div className="error-message">{error}</div>}
             <form onSubmit={formik.handleSubmit}>
                 <div className="form-field">
                     <label htmlFor="fullName">Full Name</label>
@@ -162,8 +162,7 @@ const Signup = ({ onSignupSuccess, onSwitchToLogin }) => {
                             className="password-toggle-btn"
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         >
-                            {showPassword ? <BsEyeSlashFill /> : <BsEyeFill />}
-
+                            {showConfirmPassword ? <BsEyeSlashFill /> : <BsEyeFill />}
                         </button>
                     </div>
                     {formik.touched.confirmPassword && formik.errors.confirmPassword && (

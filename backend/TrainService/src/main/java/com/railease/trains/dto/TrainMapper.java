@@ -15,9 +15,10 @@ public class TrainMapper {
         train.setTotalCoach(dto.getTotalCoach());
         train.setSeatPerCoach(dto.getSeatPerCoach());
         train.setPrice(dto.getPrice());
-        train.setSchedule(dto.getSchedule());
         train.setDepartureTime(dto.getDepartureTime());
         train.setArrivalTime(dto.getArrivalTime());
+        train.setTrainDaysOfWeek(dto.getRunningDays());
+
         return train;
     }
 
@@ -28,18 +29,24 @@ public class TrainMapper {
         dto.setNumber(train.getNumber());
         dto.setSource(train.getSource());
         dto.setDestination(train.getDestination());
+        dto.setTotalCoach(train.getTotalCoach());
+        dto.setSeatPerCoach(train.getSeatPerCoach());
         dto.setTotalSeats(train.getTotalCoach() * train.getSeatPerCoach());
         dto.setPrice(train.getPrice());
-        dto.setSchedule(train.getSchedule());
+        dto.setDepartureTime(train.getDepartureTime());
+        dto.setArrivalTime(train.getArrivalTime());
+        dto.setRunningDays(train.getTrainDaysOfWeek());
 
         Duration duration = Duration.between(train.getDepartureTime(), train.getArrivalTime());
         dto.setDuration(formatDuration(duration));
+
         return dto;
     }
 
     private static String formatDuration(Duration duration) {
-        long hours = duration.toHours();
-        long minutes = duration.toMinutesPart();
+        Duration positiveDuration = duration.abs();
+        long hours = positiveDuration.toHours();
+        long minutes = positiveDuration.toMinutesPart();
         return hours + "h " + minutes + "m";
     }
 }

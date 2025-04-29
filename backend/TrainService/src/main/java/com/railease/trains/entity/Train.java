@@ -1,16 +1,13 @@
 package com.railease.trains.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -30,8 +27,12 @@ public class Train {
     private Integer totalCoach;
     private Integer seatPerCoach;
     private double price;
-    private LocalDate schedule;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "train_days", joinColumns = @JoinColumn(name = "train_id"))
+    @Column(name = "day_of_week")
+    @Enumerated(EnumType.STRING)
+    private Set<TrainDaysOfWeek> trainDaysOfWeek;
     private LocalTime departureTime;
     private LocalTime arrivalTime;
-
 }

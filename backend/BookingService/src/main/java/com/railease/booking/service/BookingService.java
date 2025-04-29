@@ -11,6 +11,7 @@ import com.railease.booking.feign.NotificationFeignClient;
 import com.railease.booking.feign.TrainClient;
 import com.railease.booking.feign.UserClient;
 import com.railease.booking.repo.BookingRepository;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import feign.FeignException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -36,11 +38,14 @@ public class BookingService {
 
     @Transactional
     public Booking book(Booking booking, UserDTO user) {
+        if (user == null) {
+            log.error("UserDTO is null when attempting to create booking for train {}", booking.getTrainNumber());
+            throw new IllegalArgumentException("User cannot be null");
+        }
+
         log.info("Creating booking for user {} and train {}", user.getId(), booking.getTrainNumber());
 
-        booking.setUserId(user.getId());
-        booking.setStatus(BookingStatus.CONFIRMED);
-
+        // Fetch train details
         TrainDTO train;
         try {
             train = trainClient.getTrain(booking.getTrainNumber());
@@ -53,8 +58,37 @@ public class BookingService {
             throw new TrainServiceException("Unable to fetch train details", e);
         }
 
-        Booking savedBooking = bookingRepository.save(booking);
+        // Validate seat tier
+        if (booking.getSeatTier() == null) {
+            log.error("Seat tier must be selected");
+            throw new InvalidBookingException("Seat tier must be selected");
+        }
 
+        // Populate Booking entity with required fields
+        booking.setUserId(user.getId());
+        booking.setStatus(BookingStatus.CONFIRMED);
+        booking.setTrainName(train.getName()); // Set trainName from TrainDTO
+        booking.setSource(train.getSource()); // Set source from TrainDTO
+        booking.setDestination(train.getDestination()); // Set destination from TrainDTO
+        booking.setDepartureTime(train.getDepartureTime()); // Set departureTime from TrainDTO
+        booking.setArrivalTime(train.getArrivalTime()); // Set arrivalTime from TrainDTO
+        booking.setBookingTime(LocalDateTime.now()); // Set bookingTime to current time
+
+        // Calculate and set price
+        double finalPricePerSeat = train.getPrice() * booking.getSeatTier().getPriceMultiplier();
+        double totalPrice = finalPricePerSeat * booking.getSeatsBooked();
+        booking.setBookedPrice(totalPrice);
+
+        // Save booking
+        Booking savedBooking;
+        try {
+            savedBooking = bookingRepository.save(booking);
+        } catch (ConstraintViolationException e) {
+            log.error("Validation failed for booking: {}", e.getConstraintViolations());
+            throw new InvalidBookingException("Booking validation failed: " + e.getMessage());
+        }
+
+        // Send notification
         NotificationRequest request = new NotificationRequest();
         request.setTo(user.getEmail());
         request.setType("BOOKING_CONFIRMATION");
@@ -63,22 +97,22 @@ public class BookingService {
                 "trainName", train.getName(),
                 "source", train.getSource(),
                 "destination", train.getDestination(),
-                "schedule", train.getSchedule().toString(),
+                "travelDate", savedBooking.getTravelDate().toString(),
                 "departureTime", train.getDepartureTime().toString(),
-                "bookingId", savedBooking.getId()
+                "bookingId", savedBooking.getId(),
+                "totalPrice", savedBooking.getBookedPrice()
         ));
 
         try {
             notificationFeignClient.sendNotification(request);
             log.info("Booking confirmation sent to {}", user.getEmail());
         } catch (Exception e) {
-            log.error("Failed to send booking confirmation to {}: {}", user.getEmail(), e.getMessage());
-            // Optionally throw NotificationFailureException if you want to fail the booking
-            // throw new NotificationFailureException("Failed to send booking confirmation", e);
+            log.error("Failed to send booking confirmation: {}", e.getMessage());
         }
 
         return savedBooking;
     }
+
 
     public List<Booking> getBookingsByUser(Long userId) {
         log.info("Fetching bookings for user {}", userId);
@@ -126,7 +160,7 @@ public class BookingService {
                             "trainName", train.getName(),
                             "source", train.getSource(),
                             "destination", train.getDestination(),
-                            "schedule", train.getSchedule().toString(),
+                            "travelDate", booking.getTravelDate().toString(),
                             "departureTime", train.getDepartureTime().toString(),
                             "bookingId", bookingId
                     ));

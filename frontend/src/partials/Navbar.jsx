@@ -7,7 +7,6 @@ import '../styles/Navbar.css';
 
 export default function Navbar() {
     const { user, login, logout } = useContext(AuthContext);
-    console.log(user)
     const navigate = useNavigate();
     const [showAuthPopup, setShowAuthPopup] = useState(false);
     const [authMode, setAuthMode] = useState('login');
@@ -125,7 +124,7 @@ export default function Navbar() {
                                             </>
                                         ) : (
                                             <li>
-                                                <Link className="dropdown-item" to={`/myBookings/${user.username}`}>
+                                                <Link className="dropdown-item" to={`/myBookings/`}>
                                                     My Bookings
                                                 </Link>
                                             </li>
@@ -134,7 +133,7 @@ export default function Navbar() {
                                             <hr className="dropdown-divider" />
                                         </li>
                                         <li>
-                                            <button className="dropdown-item" onClick={handleLogout}>
+                                            <button className="dropdown-item logout" onClick={handleLogout}>
                                                 Logout
                                             </button>
                                         </li>
@@ -144,28 +143,28 @@ export default function Navbar() {
                                 <>
                                     <li className="nav-item">
                                         <button
-                                            id="btn1"
-                                            className="btn btn-warning"
-                                            onClick={openLogin}
+                                        id="btn1"
+                                        className="btn btn-login"
+                                        onClick={openLogin}
                                         >
-                                            Login
-                                        </button>
-                                    </li>
-                                    <li className="nav-item ms-2">
-                                        <button
-                                            id="btn2"
-                                            className="btn btn-light"
-                                            onClick={openRegister}
-                                        >
-                                            Register
-                                        </button>
-                                    </li>
-                                </>
+                                        Login
+                                    </button>
+                                </li>
+                            <li className="nav-item ms-2">
+                                <button
+                                    id="btn2"
+                                    className="btn btn-light"
+                                    onClick={openRegister}
+                                >
+                                    Register
+                                </button>
+                            </li>
+                        </>
                             )}
-                        </ul>
-                    </div>
+                    </ul>
                 </div>
-            </nav>
+            </div>
+        </nav >
 
             <Popup
                 show={showAuthPopup}

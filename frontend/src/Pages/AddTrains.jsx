@@ -2,19 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { addTrain } from '../services/TrainService';
-import LocationService from '../services/LocationService';
+import { getAllLocations } from '../services/LocationService';
+import '../styles/AddTrains.css';
 
 function AddTrains() {
   const navigate = useNavigate();
   const [flashMessage, setFlashMessage] = useState('');
   const [locations, setLocations] = useState([]);
-  
 
   const user = JSON.parse(localStorage.getItem('user'));
 
   if (!user || !user.isAdmin) {
-    return <div className='ErrorWindow'>ERROR 403 FORBIDDEN
-      <br /> Access denied. You must be an admin to view this page.</div>;
+    return (
+      <div className="error-window">
+        ERROR 403 FORBIDDEN
+        <br /> Access denied. You must be an admin to view this page.
+      </div>
+    );
   }
 
   const [formData, setFormData] = useState({
@@ -25,16 +29,15 @@ function AddTrains() {
     totalCoach: '',
     seatPerCoach: '',
     price: '500',
-    schedule: '',
+    runningDays: [],
     arrivalTime: '',
-    departureTime: ''
+    departureTime: '',
   });
 
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const data = await LocationService.getAllLocations();
-
+        const data = await getAllLocations();
         setLocations(data || []);
       } catch (error) {
         console.error('Error fetching locations:', error);
@@ -49,31 +52,56 @@ function AddTrains() {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value,
     });
+  };
+
+  const handleDayChange = (e) => {
+    const { value, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      runningDays: checked
+        ? [...prev.runningDays, value]
+        : prev.runningDays.filter((d) => d !== value),
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (formData.runningDays.length === 0) {
+      setFlashMessage('Please select at least one operating day.');
+      return;
+    }
+
     try {
       await addTrain(formData);
       setFlashMessage('Train added successfully!');
-      navigate('/trains');
+      setTimeout(() => navigate('/trains'), 1500);
     } catch (error) {
       setFlashMessage(error.response?.data?.message || 'Failed to add train. Please try again.');
     }
   };
 
+  const daysOfWeek = [
+    'MONDAY',
+    'TUESDAY',
+    'WEDNESDAY',
+    'THURSDAY',
+    'FRIDAY',
+    'SATURDAY',
+    'SUNDAY',
+  ];
+
   return (
-    <div className="container mt-4">
+    <div className="add-train-container">
       {flashMessage && (
         <div className={`alert ${flashMessage.includes('success') ? 'alert-success' : 'alert-danger'}`}>
           {flashMessage}
         </div>
       )}
       <h2 className="mb-4">Add New Train</h2>
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit} className="train-form">
         <Row className="mb-3">
           <Form.Group as={Col} controlId="formTrainName">
             <Form.Label>Train Name</Form.Label>
@@ -108,7 +136,7 @@ function AddTrains() {
               required
             >
               <option value="">Select Source</option>
-              {locations.map(location => (
+              {locations.map((location) => (
                 <option key={location.id} value={location.city}>
                   {location.city}, {location.state}, {location.country}
                 </option>
@@ -125,7 +153,7 @@ function AddTrains() {
               required
             >
               <option value="">Select Destination</option>
-              {locations.map(location => (
+              {locations.map((location) => (
                 <option key={location.id} value={location.city}>
                   {location.city}, {location.state}, {location.country}
                 </option>
@@ -170,15 +198,26 @@ function AddTrains() {
         </Row>
 
         <Row className="mb-3">
-          <Form.Group as={Col} controlId="formScheduleDate">
-            <Form.Label>Schedule Date</Form.Label>
-            <Form.Control
-              type="date"
-              name="schedule"
-              value={formData.schedule}
-              onChange={handleChange}
-              required
-            />
+          <Form.Group as={Col} controlId="formDaysOfWeek">
+            <Form.Label>Days of Operation</Form.Label>
+            <div className="days-of-week-container">
+              {daysOfWeek.map((day) => (
+                <div key={day} className="train-days-checkbox">
+                  <Form.Check
+                    type="checkbox"
+                    id={`day-${day}`}
+                    label={day.charAt(0) + day.slice(1).toLowerCase()} // Capitalize first letter, lowercase rest
+                    name="runningDays"
+                    value={day}
+                    checked={formData.runningDays.includes(day)}
+                    onChange={handleDayChange}
+                  />
+                </div>
+              ))}
+            </div>
+            {formData.runningDays.length === 0 && (
+              <Form.Text className="text-danger">Please select at least one day.</Form.Text>
+            )}
           </Form.Group>
 
           <Form.Group as={Col} controlId="formDepartureTime">
@@ -204,7 +243,7 @@ function AddTrains() {
           </Form.Group>
         </Row>
 
-        <Button variant="primary" type="submit" className="mt-3">
+        <Button variant="success" type="submit" className="submit-btn mt-3">
           Add Train
         </Button>
       </Form>

@@ -21,6 +21,8 @@ public class Location {
 
     private String city;
 
+    private String stationCode;
+
     private String state;
 
     private Integer postalCode;
