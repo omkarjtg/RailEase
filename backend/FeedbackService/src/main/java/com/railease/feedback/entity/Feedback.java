@@ -1,9 +1,6 @@
 package com.railease.feedback.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +19,7 @@ public class Feedback {
     private Long id;
     private Long userId;
     private Long bookingId;
+    @Column(columnDefinition = "TEXT")
     private String comments;
     private Integer rating;
     private LocalDateTime timestamp;

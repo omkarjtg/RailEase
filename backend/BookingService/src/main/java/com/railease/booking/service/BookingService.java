@@ -38,9 +38,9 @@ public class BookingService {
 
     @Transactional
     public Booking book(Booking booking, UserDTO user) {
-        if (user == null) {
-            log.error("UserDTO is null when attempting to create booking for train {}", booking.getTrainNumber());
-            throw new IllegalArgumentException("User cannot be null");
+        if (user == null || user.getId() == null) {
+            log.error("Invalid user data when creating booking");
+            throw new IllegalArgumentException("User information is invalid");
         }
 
         log.info("Creating booking for user {} and train {}", user.getId(), booking.getTrainNumber());
@@ -64,22 +64,22 @@ public class BookingService {
             throw new InvalidBookingException("Seat tier must be selected");
         }
 
-        // Populate Booking entity with required fields
-        booking.setUserId(user.getId());
-        booking.setStatus(BookingStatus.CONFIRMED);
-        booking.setTrainName(train.getName()); // Set trainName from TrainDTO
-        booking.setSource(train.getSource()); // Set source from TrainDTO
-        booking.setDestination(train.getDestination()); // Set destination from TrainDTO
-        booking.setDepartureTime(train.getDepartureTime()); // Set departureTime from TrainDTO
-        booking.setArrivalTime(train.getArrivalTime()); // Set arrivalTime from TrainDTO
-        booking.setBookingTime(LocalDateTime.now()); // Set bookingTime to current time
 
-        // Calculate and set price
+        booking.setUserId(user.getId());
+        booking.setStatus(BookingStatus.PENDING);
+        booking.setTrainName(train.getName());
+        booking.setSource(train.getSource());
+        booking.setDestination(train.getDestination());
+        booking.setDepartureTime(train.getDepartureTime());
+        booking.setArrivalTime(train.getArrivalTime());
+        booking.setBookingTime(LocalDateTime.now());
+
+
         double finalPricePerSeat = train.getPrice() * booking.getSeatTier().getPriceMultiplier();
         double totalPrice = finalPricePerSeat * booking.getSeatsBooked();
         booking.setBookedPrice(totalPrice);
 
-        // Save booking
+
         Booking savedBooking;
         try {
             savedBooking = bookingRepository.save(booking);
@@ -88,28 +88,9 @@ public class BookingService {
             throw new InvalidBookingException("Booking validation failed: " + e.getMessage());
         }
 
-        // Send notification
-        NotificationRequest request = new NotificationRequest();
-        request.setTo(user.getEmail());
-        request.setType("BOOKING_CONFIRMATION");
-        request.setData(Map.of(
-                "userName", user.getName(),
-                "trainName", train.getName(),
-                "source", train.getSource(),
-                "destination", train.getDestination(),
-                "travelDate", savedBooking.getTravelDate().toString(),
-                "departureTime", train.getDepartureTime().toString(),
-                "bookingId", savedBooking.getId(),
-                "totalPrice", savedBooking.getBookedPrice()
-        ));
-
-        try {
-            notificationFeignClient.sendNotification(request);
-            log.info("Booking confirmation sent to {}", user.getEmail());
-        } catch (Exception e) {
-            log.error("Failed to send booking confirmation: {}", e.getMessage());
-        }
-
+        // Do NOT send confirmation email here; defer to PaymentService
+        log.info("Booking created with PENDING status: {}", savedBooking.getBookingId());
+        System.out.println(savedBooking);
         return savedBooking;
     }
 
@@ -117,6 +98,12 @@ public class BookingService {
     public List<Booking> getBookingsByUser(Long userId) {
         log.info("Fetching bookings for user {}", userId);
         return bookingRepository.findByUserId(userId);
+    }
+
+    public Booking getBookingById(Long bookingId) {
+        log.info("Fetching booking with ID {}", bookingId);
+        return bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new BookingNotFoundException("Booking not found with ID: " + bookingId));
     }
 
     public List<Booking> getAll() {

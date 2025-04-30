@@ -22,14 +22,8 @@
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
     width: 100%;
     box-sizing: border-box;
-}
-
-.train-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .train-header {
@@ -92,13 +86,15 @@
     transition: all 0.3s ease;
 }
 
-.btn-primary {
-    background-color: #3498db;
+.btn-book {
+    background-color: #714f97;
     color: white;
+    width: 100%;
 }
 
-.btn-primary:hover {
-    background-color: #2980b9;
+.btn-book:hover {
+    background-color: #634a7d;
+    color: white;
 }
 
 .btn-warning {
@@ -159,4 +155,15 @@
     border: 1px solid #f8c9c5;
     border-radius: 4px;
     margin-top: 20px;
+}
+
+/* Make the train card visually clickable */
+.clickable-card {
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.clickable-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }

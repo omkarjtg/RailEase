@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode'; // Assuming you are using jwt-decode for token handling
+import { toast } from 'react-toastify';
 
 export const AuthContext = createContext();
 
@@ -14,9 +15,9 @@ export const AuthProvider = ({ children }) => {
             const decodedToken = jwtDecode(storedToken);
             const isTokenExpired = decodedToken.exp * 1000 < Date.now();
             if (isTokenExpired) {
-                logout(); // Automatically logout if token is expired
+                logout(); 
             } else {
-                setUser(storedUser);  // Set user details (username, role, isAdmin) from localStorage
+                setUser(storedUser);
             }
         }
     }, []);
@@ -38,6 +39,8 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('jwtToken');
         localStorage.removeItem('user');
         setUser(null);
+        toast.done('Logged Out Successfully')
+
     };
 
     return (

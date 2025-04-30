@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name = "TRAINSERVICE")
 public interface TrainClient {
-    @GetMapping("/api/trains/{trainNumber}")
+    @GetMapping("/api/trains/number/{trainNumber}")
     TrainDTO getTrain(@PathVariable String trainNumber);
 }

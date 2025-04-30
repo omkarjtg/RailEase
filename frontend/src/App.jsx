@@ -10,7 +10,6 @@ import AddTrains from './Pages/AddTrains';
 import AboutUs from './Pages/AboutUs';
 import FeedbackForm from './Pages/Feedback';
 import AllLocations from './Pages/Locations';
-import ScheduledTrains from './Pages/ScheduledTrain';
 import MockBookedPage from './Pages/MockBookedPage';
 import HomePage from './Pages/Home';
 import UpdateTrainForm from './Pages/UpdateTrainForm';
@@ -18,6 +17,7 @@ import ResetPassword from './partials/ResetPassword';
 import ProtectedRoute from './utils/ProtectedRoute';
 import { ToastContainer } from 'react-toastify';
 import { getAllTrains } from './services/TrainService';
+import BackendError from './partials/BackendError';
 
 function App() {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
@@ -29,11 +29,9 @@ function App() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Check for existing user session (e.g., from localStorage or API)
   useEffect(() => {
     const checkUserSession = async () => {
       try {
-        // Example: Fetch user data from an API or localStorage
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
           setUser(JSON.parse(storedUser));
@@ -68,7 +66,6 @@ function App() {
     }
   }, [location]);
 
-  // Fetch all trains on mount
   useEffect(() => {
     const fetchTrains = async () => {
       try {
@@ -91,31 +88,30 @@ function App() {
 
   const handleAuthSuccess = (userData) => {
     setUser(userData); // Store user data
-    localStorage.setItem('user', JSON.stringify(userData)); // Persist user data (optional)
+    localStorage.setItem('user', JSON.stringify(userData));
     setShowAuthPopup(false);
     navigate('/');
   };
 
-  // Loading and error handling
   if (loading) {
     return <div>Loading trains...</div>;
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return <BackendError message={error} />;
   }
 
   return (
     <>
       <Navbar />
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer position="top-center" autoClose={3000} />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/book" element={<BookingForm train={trains[0]} />} />
         <Route
           path="/myBookings"
           element={user ? <BookingDetails user={user} /> : <Navigate to="/login" replace />}
-        />  
+        />
         <Route path="/trains" element={<TrainList trains={trains} />} />
         <Route
           path="/addTrains"
@@ -129,18 +125,17 @@ function App() {
             user ? (
               <FeedbackForm user={user} />
             ) : (
-              <Navigate to="/login" replace /> // Redirect to login if user is not authenticated
+              <Navigate to="/login" replace />
             )
           }
         />
-        <Route path="/scheduled" Sonalelement={<ScheduledTrains />} />
         <Route path="/booked" element={<MockBookedPage />} />
         <Route path="/location" element={<AllLocations />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         {/* Redirecting unwanted routes */}
         <Route path="/login" element={<Popup />} />
-        <Route path="/register" element={<Navigate to="/" />} />
-        <Route path="/forgot-password" element={<Navigate to="/" />} />
+        <Route path="/register" element={<Popup />} />
+        <Route path="/forgot-password" element={<Popup />} />
       </Routes>
       <Popup
         show={showAuthPopup}

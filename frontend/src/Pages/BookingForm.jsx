@@ -5,22 +5,24 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../styles/BookingForm.css';
 import { toast } from 'react-toastify';
+import { createBooking } from '../services/BookingService';
+import paymentService from '../services/PaymentService';
 
 export default function BookingForm({ train, onCancel }) {
     const [seats, setSeats] = useState(1);
-    const [seatTier, setSeatTier] = useState('SLEEPER');
+    const [seatTier, setSeatTier] = useState('TIER2_SLEEPER'); // Align default with options
     const [travelDate, setTravelDate] = useState(null);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [showSummary, setShowSummary] = useState(false);
     const [bookingPayload, setBookingPayload] = useState(null);
     const [summaryData, setSummaryData] = useState(null);
-
+    const [paymentError, setPaymentError] = useState(null);
 
     const tierMultiplier = {
-        SLEEPER: 1,
-        AC: 2,
-        GENERAL: 0.8,
+        TIER1_AC: 2,
+        TIER2_SLEEPER: 1,
+        TIER3_GENERAL: 0.8,
     };
 
     const totalPrice = useMemo(() => {
@@ -45,7 +47,7 @@ export default function BookingForm({ train, onCancel }) {
 
     const isDateAllowed = (date) => {
         const allowedDays = getAllowedDays();
-        if (!allowedDays.length) return true; // Allow all dates if no runningDays
+        if (!allowedDays.length) return true;
         return allowedDays.includes(date.getDay());
     };
 
@@ -74,30 +76,77 @@ export default function BookingForm({ train, onCancel }) {
             travelDate: travelDate.toISOString().split('T')[0],
             departureTime: train.departureTime,
             arrivalTime: train.arrivalTime,
-            bookedPrice: totalPrice, // << important for popup
+            bookedPrice: totalPrice,
         };
 
         setBookingPayload(apiPayload);
         setSummaryData(popupSummary);
         setShowSummary(true);
+        setPaymentError(null);
     };
-
-
 
     const handleConfirmBooking = async () => {
         if (!bookingPayload) return;
+
+        // Check if Razorpay script is loaded
+        if (!window.Razorpay) {
+            setPaymentError('Razorpay script not loaded. Please try again.');
+            toast.error('Failed to load payment gateway. Please refresh the page.');
+            return;
+        }
+
+        // Check if Razorpay API key is available
+        const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
+        if (!razorpayKey) {
+            setPaymentError('Payment configuration error: API key missing. Please contact support.');
+            toast.error('Payment configuration error: API key missing.');
+            return;
+        }
+
         try {
             setLoading(true);
-            await API.post('/api/booking', bookingPayload);
-            toast.success('Booking Successful');
+            setPaymentError(null);
+
+            // Step 1: Create booking using the service method
+            const bookingResponse = await createBooking(bookingPayload);
+            if (!bookingResponse.bookingId) {
+                throw new Error('Booking creation failed: No booking ID returned');
+            }
+
+            // Step 2: Initiate payment
+            const paymentRequest = {
+                bookingId: bookingResponse.bookingId,
+                amount: totalPrice,
+                currency: 'INR',
+                metadata: {
+                    trainName: train.name,
+                    seatsBooked: seats,
+                    travelDate: travelDate.toISOString().split('T')[0]
+                }
+            };
+            
+            await paymentService.createOrder(paymentRequest);
+    
+
+            setShowSummary(false);
             setMessage('✅ Booking Successful!');
+            toast.success('Booking confirmed successfully!');
         } catch (error) {
             console.error('Booking error:', error);
-            toast.error('Booking Failed, try again');
-            setMessage('❌ Booking Failed. Try again.');
+            let errorMessage = 'Failed to complete booking. Please try again.';
+            if (error.message.includes('Payment cancelled')) {
+                errorMessage = 'Payment was cancelled. Please try again.';
+            } else if (error.message.includes('Payment verification failed')) {
+                errorMessage = 'Payment verification failed. Please contact support.';
+            } else if (error.message.includes('Razorpay script not loaded')) {
+                errorMessage = 'Payment gateway not loaded. Please refresh the page.';
+            } else if (error.message.includes('Razorpay API key missing')) {
+                errorMessage = 'Payment configuration error. Please contact support.';
+            }
+            setPaymentError(errorMessage);
+            toast.error(`Booking Failed: ${errorMessage}`);
         } finally {
             setLoading(false);
-            setShowSummary(false);
         }
     };
 
@@ -114,6 +163,16 @@ export default function BookingForm({ train, onCancel }) {
         return (
             <div className="message-container">
                 <p className={message.includes('Success') ? 'success' : 'error'}>{message}</p>
+                <button onClick={onCancel} className="cancel-button">Back</button>
+            </div>
+        );
+    }
+
+    // Fallback UI if payment gateway is unavailable
+    if (!import.meta.env.VITE_RAZORPAY_KEY_ID || !window.Razorpay) {
+        return (
+            <div className="message-container">
+                <p className="error">❌ Payment gateway is currently unavailable. Please try again later or contact support.</p>
                 <button onClick={onCancel} className="cancel-button">Back</button>
             </div>
         );
@@ -136,13 +195,10 @@ export default function BookingForm({ train, onCancel }) {
 
             <div className="form-group">
                 <label>Seat Tier:</label>
-                <select
-                    value={seatTier}
-                    onChange={(e) => setSeatTier(e.target.value)}
-                >
-                    <option value="SLEEPER">Sleeper</option>
-                    <option value="AC">AC</option>
-                    <option value="GENERAL">General</option>
+                <select value={seatTier} onChange={(e) => setSeatTier(e.target.value)}>
+                    <option value="TIER2_SLEEPER">Sleeper</option>
+                    <option value="TIER1_AC">AC</option>
+                    <option value="TIER3_GENERAL">General</option>
                 </select>
             </div>
 
@@ -152,9 +208,9 @@ export default function BookingForm({ train, onCancel }) {
                     selected={travelDate}
                     onChange={(date) => setTravelDate(date)}
                     filterDate={isDateAllowed}
-                    minDate={new Date()} // Prevent past dates
+                    minDate={new Date()}
                     dateFormat="yyyy-MM-dd"
-                    className="form-control" // Match form input styling
+                    className="form-control"
                     placeholderText="Select a date"
                 />
             </div>
@@ -169,7 +225,7 @@ export default function BookingForm({ train, onCancel }) {
                     disabled={loading}
                     className="confirm-button"
                 >
-                    {loading ? 'Booking...' : 'Confirm Booking'}
+                    {loading ? 'Processing...' : 'Confirm Booking'}
                 </button>
 
                 <button onClick={onCancel} className="cancel-button">
@@ -183,8 +239,8 @@ export default function BookingForm({ train, onCancel }) {
                 bookingData={summaryData}
                 handleConfirm={handleConfirmBooking}
                 loading={loading}
+                paymentError={paymentError}
             />
-
         </div>
     );
 }

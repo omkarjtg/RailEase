@@ -1,6 +1,6 @@
-package com.railease.booking.dto;
+package com.railease.payment.dto;
 
-import com.railease.booking.entity.Role;
+import com.railease.payment.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

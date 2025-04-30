@@ -28,26 +28,36 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            try {
-                if (jwtUtil.validateToken(token)) {
-                    String username = jwtUtil.getUsernameFromToken(token);
-                    String role = jwtUtil.getRoleFromToken(token);
-                    List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
-                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                            username, null, authorities
-                    );
-                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                    System.out.println("LocationService JwtFilter: Set authorities: " + authorities); // Debug
-                }
-            } catch (JwtException e) {
-                System.err.println("LocationService JwtFilter error: " + e.getMessage());
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                return;
-            }
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            logger.warn("No JWT token found in request: {}");
+            chain.doFilter(request, response);
+            return;
         }
+
+        String token = authHeader.substring(7);
+        try {
+            if (jwtUtil.validateToken(token)) {
+                String username = jwtUtil.getUsernameFromToken(token);
+                String role = jwtUtil.getRoleFromToken(token);
+                Long userId = jwtUtil.getUserIdFromToken(token);
+
+                // Set security context
+                List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                        username, null, authorities
+                );
+                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(auth);
+
+
+
+            }
+        } catch (JwtException e) {
+            logger.error("JWT error for request: {}: {}");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
         chain.doFilter(request, response);
     }
 }

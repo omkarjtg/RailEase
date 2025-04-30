@@ -112,7 +112,10 @@ const TrainCard = ({ train, user, onUpdate, onDelete, onBook }) => {
     };
 
     return (
-        <div className="train-card">
+        <div
+            className="train-card clickable-card"
+            onClick={() => user?.role !== 'ADMIN' && onBook(train)} // Make the card clickable for non-admin users
+        >
             <div className="train-header">
                 <h3>
                     {train.name} <span>({train.number})</span>
@@ -127,22 +130,16 @@ const TrainCard = ({ train, user, onUpdate, onDelete, onBook }) => {
                 <span>Arr: {formatTime(train.arrivalTime)}</span>
             </div>
             <div className="price">₹{train.price || 'N/A'}</div>
-            <div className="actions">
-                {user?.role === 'ADMIN' ? (
-                    <>
-                        <button className="btn btn-warning" onClick={onUpdate}>
-                            Update
-                        </button>
-                        <button className="btn btn-danger" onClick={onDelete}>
-                            Delete
-                        </button>
-                    </>
-                ) : (
-                    <button className="btn btn-primary" onClick={onBook}>
-                        Book Now
+            {user?.role === 'ADMIN' && (
+                <div className="actions">
+                    <button className="btn btn-warning" onClick={(e) => { e.stopPropagation(); onUpdate(); }}>
+                        Update
                     </button>
-                )}
-            </div>
+                    <button className="btn btn-danger" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
+                        Delete
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

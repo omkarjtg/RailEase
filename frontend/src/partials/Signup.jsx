@@ -40,7 +40,6 @@ const Signup = ({ onSignupSuccess, onSwitchToLogin }) => {
         onSubmit: async (values) => {
             setLoading(true);
             try {
-                // First, register the user
                 await register({
                     fullName: values.fullName,
                     username: values.username,
@@ -48,7 +47,6 @@ const Signup = ({ onSignupSuccess, onSwitchToLogin }) => {
                     password: values.password,
                 });
 
-                // Then automatically log them in
                 const loginResponse = await login({
                     identifier: values.username,
                     password: values.password

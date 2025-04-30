@@ -1,8 +1,9 @@
-package com.railease.booking.feign;
+package com.railease.payment.feign;
 
-import com.railease.booking.dto.NotificationRequest;
+import com.railease.payment.dto.NotificationRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
+
 
 @FeignClient(name = "notificationservice")
 public interface NotificationFeignClient {

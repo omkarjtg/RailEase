@@ -1,9 +1,12 @@
 import { useContext, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
+import 'bootstrap/dist/js/bootstrap.bundle.min';
 import Popup from './Popup';
+import { Dropdown } from 'react-bootstrap';
 import { AuthContext } from '../AuthContext';
 import '../styles/Navbar.css';
+import { toast } from 'react-toastify';
 
 export default function Navbar() {
     const { user, login, logout } = useContext(AuthContext);
@@ -14,6 +17,7 @@ export default function Navbar() {
     const handleLogout = useCallback(() => {
         logout();
         navigate('/');
+        toast.info("Logged out successfully!")
     }, [logout, navigate]);
 
     const openLogin = useCallback(() => {
@@ -77,12 +81,7 @@ export default function Navbar() {
                             </li>
                             <li className="nav-item">
                                 <Link className="nav-link active" to="/trains">
-                                    Trains
-                                </Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link active" to="/scheduled">
-                                    Scheduled Trains
+                                    Train Schedule
                                 </Link>
                             </li>
                             <li className="nav-item">
@@ -97,74 +96,58 @@ export default function Navbar() {
                             </li>
                         </ul>
                         <ul className="navbar-nav ms-auto">
-                            {user ? (
-                                <li className="nav-item dropdown">
-                                    <span
-                                        className="nav-link dropdown-toggle text-white"
-                                        id="navbarDropdown"
-                                        role="button"
-                                        data-bs-toggle="dropdown"
-                                        aria-expanded="false"
-                                    >
+                            {user ? (  
+                                <Dropdown as="li" className="nav-item">
+                                    <Dropdown.Toggle as="span" className="nav-link text-white">
                                         Welcome, {user.username}
-                                    </span>
-                                    <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    </Dropdown.Toggle>
+                                    <Dropdown.Menu>
                                         {user.role === 'ADMIN' ? (
                                             <>
-                                                <li>
-                                                    <Link className="dropdown-item" to="/addTrains">
-                                                        Add Trains
-                                                    </Link>
-                                                </li>
-                                                <li>
-                                                    <Link className="dropdown-item" to="/location">
-                                                        Locations
-                                                    </Link>
-                                                </li>
+                                                <Dropdown.Item as={Link} to="/addTrains">
+                                                    Add Trains
+                                                </Dropdown.Item>
+                                                <Dropdown.Item as={Link} to="/location">
+                                                    Locations
+                                                </Dropdown.Item>
                                             </>
                                         ) : (
-                                            <li>
-                                                <Link className="dropdown-item" to={`/myBookings/`}>
-                                                    My Bookings
-                                                </Link>
-                                            </li>
+                                            <Dropdown.Item as={Link} to={`/myBookings/`}>
+                                                My Bookings
+                                            </Dropdown.Item>
                                         )}
-                                        <li>
-                                            <hr className="dropdown-divider" />
-                                        </li>
-                                        <li>
-                                            <button className="dropdown-item logout" onClick={handleLogout}>
-                                                Logout
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </li>
+                                        <Dropdown.Divider />
+                                        <Dropdown.Item className="logout" onClick={handleLogout}>
+                                            Logout
+                                        </Dropdown.Item>
+                                    </Dropdown.Menu>
+                                </Dropdown>
                             ) : (
                                 <>
                                     <li className="nav-item">
                                         <button
-                                        id="btn1"
-                                        className="btn btn-login"
-                                        onClick={openLogin}
+                                            id="btn1"
+                                            className="btn btn-login"
+                                            onClick={openLogin}
                                         >
-                                        Login
-                                    </button>
-                                </li>
-                            <li className="nav-item ms-2">
-                                <button
-                                    id="btn2"
-                                    className="btn btn-light"
-                                    onClick={openRegister}
-                                >
-                                    Register
-                                </button>
-                            </li>
-                        </>
+                                            Login
+                                        </button>
+                                    </li>
+                                    <li className="nav-item ms-2">
+                                        <button
+                                            id="btn2"
+                                            className="btn btn-light"
+                                            onClick={openRegister}
+                                        >
+                                            Register
+                                        </button>
+                                    </li>
+                                </>
                             )}
-                    </ul>
+                        </ul>
+                    </div>
                 </div>
-            </div>
-        </nav >
+            </nav >
 
             <Popup
                 show={showAuthPopup}

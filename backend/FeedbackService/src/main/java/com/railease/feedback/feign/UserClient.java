@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @FeignClient(name = "user-service", url = "http://localhost:8081")
 public interface UserClient {
 
-    @GetMapping("/users/{id}")
+    @GetMapping("api/auth/users/{id}")
     ResponseEntity<UserDTO> getUserById(
             @PathVariable("id") Long id,
             @RequestHeader("Authorization") String authorizationHeader);

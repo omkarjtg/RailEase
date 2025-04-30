@@ -107,7 +107,7 @@ const BookingDetails = ({ user }) => {
                         </div>
                         <div class="print-detail">
                             <span class="detail-label">Travel Date:</span>
-                            <span>${new Date(selectedBooking.travelDate).toLocaleDateString()}</span>
+                            <span>${formatDate(selectedBooking.travelDate)}</span>
                         </div>
                         <div class="print-detail">
                             <span class="detail-label">Seat Tier:</span>
@@ -137,6 +137,14 @@ const BookingDetails = ({ user }) => {
         }, 500);
     };
 
+    const formatDate = (date) => {
+        return new Intl.DateTimeFormat('en-GB', {
+            day: 'numeric',
+            month: 'short', // Abbreviated month (e.g., Apr)
+            year: 'numeric',
+        }).format(new Date(date));
+    };
+
     const currentDate = new Date();
     const upcomingBookings = bookings.filter(b => new Date(b.travelDate) > currentDate);
     const pastBookings = bookings.filter(b => new Date(b.travelDate) <= currentDate);
@@ -163,16 +171,16 @@ const BookingDetails = ({ user }) => {
                         </thead>
                         <tbody>
                             {list.map((booking) => (
-                                <tr 
-                                    key={booking.id} 
+                                <tr
+                                    key={booking.bookingId}
                                     onClick={() => handleRowClick(booking)}
                                     className="clickable-row"
                                 >
-                                    <td>#{booking.id}</td>
+                                    <td>#{booking.bookingId}</td>
                                     <td>{booking.trainNumber} - {booking.trainName}</td>
                                     <td>{booking.source || 'N/A'}</td>
                                     <td>{booking.destination || 'N/A'}</td>
-                                    <td>{booking.travelDate ? new Date(booking.travelDate).toLocaleDateString() : 'N/A'}</td>
+                                    <td>{booking.travelDate ? formatDate(booking.travelDate) : 'N/A'}</td>
                                     <td>{booking.bookedPrice ? `₹${booking.bookedPrice.toFixed(2)}` : 'N/A'}</td>
                                     <td>{booking.seatTier || 'N/A'}</td>
                                     <td>
@@ -195,7 +203,7 @@ const BookingDetails = ({ user }) => {
     return (
         <div className="booking-container">
             <h2>My Bookings</h2>
-            
+
             {renderTable(upcomingBookings, 'Upcoming Bookings')}
             {renderTable(pastBookings, 'Past Bookings')}
 
@@ -205,14 +213,14 @@ const BookingDetails = ({ user }) => {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h3>Booking Details #{selectedBooking.id}</h3>
-                            <button 
-                                className="close-button" 
+                            <button
+                                className="close-button"
                                 onClick={() => setShowModal(false)}
                             >
                                 &times;
                             </button>
                         </div>
-                        
+
                         <div className="modal-body">
                             <div className="booking-detail">
                                 <span className="detail-label">Train:</span>
@@ -224,7 +232,7 @@ const BookingDetails = ({ user }) => {
                             </div>
                             <div className="booking-detail">
                                 <span className="detail-label">Travel Date:</span>
-                                <span>{new Date(selectedBooking.travelDate).toLocaleDateString()}</span>
+                                <span>{formatDate(selectedBooking.travelDate)}</span>
                             </div>
                             <div className="booking-detail">
                                 <span className="detail-label">Seat Tier:</span>
@@ -241,7 +249,7 @@ const BookingDetails = ({ user }) => {
                                 </span>
                             </div>
                         </div>
-                        
+
                         <div className="modal-footer">
                             {new Date(selectedBooking.travelDate) > currentDate && selectedBooking.status === 'CONFIRMED' && (
                                 <button
@@ -252,8 +260,8 @@ const BookingDetails = ({ user }) => {
                                     {cancelling === selectedBooking.id ? 'Cancelling...' : 'Cancel Booking'}
                                 </button>
                             )}
-                            <button 
-                                className="print-button" 
+                            <button
+                                className="print-button"
                                 onClick={handlePrint}
                             >
                                 🖨️ Print Booking

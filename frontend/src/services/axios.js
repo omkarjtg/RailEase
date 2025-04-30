@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const API = axios.create({
     baseURL: 'http://localhost:9090/api',
@@ -48,9 +49,12 @@ API.interceptors.response.use(
             switch (error.response.status) {
                 case 401:
                     console.warn('Unauthorized - redirecting to login');
+                    localStorage.removeItem('user');
+                    window.location.href = '/login';
                     break;
                 case 403:
                     console.warn('Forbidden - insufficient permissions');
+                    toast.error('You do not have permission to perform this action');
                     break;
                 case 404:
                     console.warn('Resource not found');

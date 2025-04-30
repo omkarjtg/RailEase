@@ -3,25 +3,34 @@ import API from './axios';
 /**
  * Create a new booking
  * @param {Object} bookingData - Booking details
- * @param {string} token - JWT token
  * @returns {Promise<Object>} Created booking
  */
-export const createBooking = async (bookingData, token) => {
+export const createBooking = async (bookingData) => {
     try {
-        const response = await API.post('/booking', bookingData, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+        const response = await API.post('/booking', bookingData);
         return response.data;
     } catch (error) {
-        console.error('Error creating booking:', error);
-        throw error.response?.data || error.message;
+        console.error('Booking error details:', {
+            status: error.response?.status,
+            data: error.response?.data,
+            config: error.config
+        });
+
+        if (error.response?.status === 403) {
+            if (error.response.data?.message?.includes('seat availability')) {
+                throw new Error('Not enough seats available');
+            }
+            throw new Error('Booking forbidden. Please check your permissions or train availability');
+        }
+        
+        throw error.response?.data?.message || error.message;
     }
-};
+};  
 
-
-
+/**
+ * Get current user's bookings
+ * @returns {Promise<Array>} List of user's bookings
+ */
 export const getMyBookings = async () => {
     try {
         const response = await API.get('/booking/my');
@@ -33,16 +42,12 @@ export const getMyBookings = async () => {
 };
 
 /**
- * @param {string} token - JWT token
+ * Get all bookings (admin only)
  * @returns {Promise<Array>} List of all bookings
  */
-export const getAllBookings = async (token) => {
+export const getAllBookings = async () => {
     try {
-        const response = await API.get('/booking/all', {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+        const response = await API.get('/booking/all');
         return response.data;
     } catch (error) {
         console.error('Error fetching all bookings:', error);
@@ -56,16 +61,11 @@ export const getAllBookings = async (token) => {
 /**
  * Confirm a booking
  * @param {number} bookingId - Booking ID to confirm
- * @param {string} token - JWT token
  * @returns {Promise<string>} Success message
  */
-export const confirmBooking = async (bookingId, token) => {
+export const confirmBooking = async (bookingId) => {
     try {
-        const response = await API.put(`/booking/confirm/${bookingId}`, {}, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+        const response = await API.put(`/booking/confirm/${bookingId}`);
         return response.data;
     } catch (error) {
         console.error('Error confirming booking:', error);
@@ -76,16 +76,11 @@ export const confirmBooking = async (bookingId, token) => {
 /**
  * Cancel a booking
  * @param {number} bookingId - Booking ID to cancel
- * @param {string} token - JWT token
  * @returns {Promise<string>} Success message
  */
-export const cancelBooking = async (bookingId, token) => {
+export const cancelBooking = async (bookingId) => {
     try {
-        const response = await API.put(`/booking/${bookingId}/cancel`, {}, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+        const response = await API.put(`/booking/${bookingId}/cancel`);
         return response.data;
     } catch (error) {
         console.error('Error cancelling booking:', error);
