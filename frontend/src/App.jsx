@@ -5,12 +5,12 @@ import Navbar from './partials/Navbar';
 import Popup from './partials/Popup';
 import BookingForm from './Pages/BookingForm';
 import BookingDetails from './Pages/MyBookings';
+import BookingDetail from './Pages/BookingDetail'
 import TrainList from './Pages/TrainList';
 import AddTrains from './Pages/AddTrains';
 import AboutUs from './Pages/AboutUs';
 import FeedbackForm from './Pages/Feedback';
 import AllLocations from './Pages/Locations';
-import MockBookedPage from './Pages/MockBookedPage';
 import HomePage from './Pages/Home';
 import UpdateTrainForm from './Pages/UpdateTrainForm';
 import ResetPassword from './partials/ResetPassword';
@@ -18,6 +18,7 @@ import ProtectedRoute from './utils/ProtectedRoute';
 import { ToastContainer } from 'react-toastify';
 import { getAllTrains } from './services/TrainService';
 import BackendError from './partials/BackendError';
+import Profile from './Pages/Profile'; // Import the Profile component
 
 function App() {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
@@ -112,6 +113,7 @@ function App() {
           path="/myBookings"
           element={user ? <BookingDetails user={user} /> : <Navigate to="/login" replace />}
         />
+        <Route path="/bookings/:id" element={<BookingDetail />} />
         <Route path="/trains" element={<TrainList trains={trains} />} />
         <Route
           path="/addTrains"
@@ -129,7 +131,7 @@ function App() {
             )
           }
         />
-        <Route path="/booked" element={<MockBookedPage />} />
+        <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" replace />} />
         <Route path="/location" element={<AllLocations />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         {/* Redirecting unwanted routes */}

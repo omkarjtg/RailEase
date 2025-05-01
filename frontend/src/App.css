@@ -45,7 +45,7 @@ body {
   background-image: url('/vande-bharat-1713270829.jpg');
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
+  background-repeat: repeat-y;
   margin: 0;
   padding: 0;
 }
@@ -69,8 +69,13 @@ body {
 html, body {
   height: 100%;
   margin: 0;
+  
 }
 #root {
+  background-image: url('/vande-bharat-1713270829.jpg');
+  background-size: contain;
+  background-position: center;
+  background-repeat: repeat-y;
   min-height: 100vh;
   display: flex; 
   flex-direction: column; 

@@ -1,83 +1,41 @@
 import API from './axios';
+import BookingService from '../services/BookingService';
 
-/**
- * Create a new booking
- * @param {Object} bookingData - Booking details
- * @returns {Promise<Object>} Created booking
- */
+const handleBookingError = (error) => {
+    console.error('Booking Error:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        config: error.config
+    });
+
+    if (error.response?.status === 403) {
+        if (error.response.data?.message?.includes('seat availability')) {
+            throw new Error('Not enough seats available');
+        }
+        throw new Error('Booking forbidden. Please check availability');
+    }
+
+    throw new Error(error.response?.data?.message || error.message || 'Booking failed');
+};
+
 export const createBooking = async (bookingData) => {
     try {
         const response = await API.post('/booking', bookingData);
         return response.data;
     } catch (error) {
-        console.error('Booking error details:', {
-            status: error.response?.status,
-            data: error.response?.data,
-            config: error.config
-        });
-
-        if (error.response?.status === 403) {
-            if (error.response.data?.message?.includes('seat availability')) {
-                throw new Error('Not enough seats available');
-            }
-            throw new Error('Booking forbidden. Please check your permissions or train availability');
-        }
-        
-        throw error.response?.data?.message || error.message;
+        handleBookingError(error);
     }
-};  
+};
 
-/**
- * Get current user's bookings
- * @returns {Promise<Array>} List of user's bookings
- */
 export const getMyBookings = async () => {
     try {
         const response = await API.get('/booking/my');
         return response.data;
     } catch (error) {
-        console.error('Error fetching user bookings:', error);
-        throw error.response?.data || error.message;
+        handleBookingError(error);
     }
 };
 
-/**
- * Get all bookings (admin only)
- * @returns {Promise<Array>} List of all bookings
- */
-export const getAllBookings = async () => {
-    try {
-        const response = await API.get('/booking/all');
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching all bookings:', error);
-        if (error.response?.status === 403) {
-            throw new Error('Unauthorized: Admin access required');
-        }
-        throw error.response?.data || error.message;
-    }
-};
-
-/**
- * Confirm a booking
- * @param {number} bookingId - Booking ID to confirm
- * @returns {Promise<string>} Success message
- */
-export const confirmBooking = async (bookingId) => {
-    try {
-        const response = await API.put(`/booking/confirm/${bookingId}`);
-        return response.data;
-    } catch (error) {
-        console.error('Error confirming booking:', error);
-        throw error.response?.data || error.message;
-    }
-};
-
-/**
- * Cancel a booking
- * @param {number} bookingId - Booking ID to cancel
- * @returns {Promise<string>} Success message
- */
 export const cancelBooking = async (bookingId) => {
     try {
         const response = await API.put(`/booking/${bookingId}/cancel`);
@@ -91,11 +49,6 @@ export const cancelBooking = async (bookingId) => {
     }
 };
 
-/**
- * Format booking request data
- * @param {Object} data - Raw booking data
- * @returns {Object} Formatted booking request
- */
 export const formatBookingRequest = (data) => {
     return {
         trainNumber: data.trainNumber,
@@ -104,4 +57,24 @@ export const formatBookingRequest = (data) => {
         travelDate: data.travelDate,
         passengerDetails: data.passengerDetails
     };
+};
+
+export const getBookingById = async (bookingId) => {
+    try {
+        const response = await API.get(`/booking/id/${bookingId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching booking:', error);
+        if (error.response?.status === 404) {
+            throw new Error('Booking not found');
+        }
+        throw error.response?.data || error.message;
+    }
+};
+
+export default {
+    createBooking,
+    getMyBookings,
+    cancelBooking,
+    getBookingById
 };

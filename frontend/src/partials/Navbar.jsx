@@ -74,11 +74,11 @@ export default function Navbar() {
                     </button>
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav">
-                            <li className="nav-item">
+                            {/*  <li className="nav-item">
                                 <Link className="nav-link active" to="/book">
                                     Book Ticket
                                 </Link>
-                            </li>
+                            </li> */}
                             <li className="nav-item">
                                 <Link className="nav-link active" to="/trains">
                                     Train Schedule
@@ -96,12 +96,16 @@ export default function Navbar() {
                             </li>
                         </ul>
                         <ul className="navbar-nav ms-auto">
-                            {user ? (  
+                            {user ? (
                                 <Dropdown as="li" className="nav-item">
                                     <Dropdown.Toggle as="span" className="nav-link text-white">
                                         Welcome, {user.username}
                                     </Dropdown.Toggle>
                                     <Dropdown.Menu>
+                                        <Dropdown.Item as={Link} to="/profile">
+                                            Profile
+                                        </Dropdown.Item>
+                                        <Dropdown.Divider />
                                         {user.role === 'ADMIN' ? (
                                             <>
                                                 <Dropdown.Item as={Link} to="/addTrains">

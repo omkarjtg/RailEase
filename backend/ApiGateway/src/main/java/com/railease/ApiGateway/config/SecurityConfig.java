@@ -41,8 +41,11 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.POST, "/api/feedback").authenticated()
                         .pathMatchers(HttpMethod.GET, "/api/feedback/my").authenticated()
                         .pathMatchers(HttpMethod.GET, "/api/feedback/all").hasRole("ADMIN")
+                        .pathMatchers(HttpMethod.PUT, "/api/feedback/**").authenticated()
+                        .pathMatchers(HttpMethod.DELETE, "/api/feedback/**").authenticated()
                         // BookingService
                         .pathMatchers(HttpMethod.POST, "/api/booking").authenticated()
+                        .pathMatchers(HttpMethod.GET, "/api/booking/**").authenticated()
                         .pathMatchers(HttpMethod.GET, "/api/booking/my").authenticated()
                         .pathMatchers(HttpMethod.GET, "/api/booking/all").hasRole("ADMIN")
                         .pathMatchers(HttpMethod.PUT, "/api/booking/**").authenticated()

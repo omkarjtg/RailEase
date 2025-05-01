@@ -173,6 +173,15 @@ public class BookingService {
     }
 
     @Transactional
+    public void failBooking(Long bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new BookingNotFoundException("Booking not found"));
+        booking.setStatus(BookingStatus.FAILED);
+        bookingRepository.save(booking);
+        log.info("Booking {} marked as FAILED", bookingId);
+    }
+
+    @Transactional
     public void markAsConfirmed(Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new BookingNotFoundException("Booking not found"));

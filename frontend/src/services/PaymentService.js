@@ -1,42 +1,44 @@
 import API from './axios';
 
+const handleApiError = (error, context) => {
+    console.error(`Payment Error (${context}):`, {
+        status: error.response?.status,
+        data: error.response?.data,
+        config: error.config
+    });
+    
+    const defaultMessage = `Payment ${context} failed`;
+    throw new Error(error.response?.data?.error?.description || 
+                   error.response?.data?.message || 
+                   error.message || 
+                   defaultMessage);
+};
 
-const createOrder = async (paymentRequest) => {
+export const createOrder = async (paymentRequest) => {
     try {
-        const response = await API.post(`/payment/create-order`, paymentRequest);
-        return response.data;
+        const response = await API.post('/payment/create-order', paymentRequest);
+        const orderData = response.data;
+        
+        if (!orderData?.id || orderData.status !== "created") {
+            throw new Error(orderData?.error?.description || "Invalid order creation response");
+        }
+        
+        return { data: orderData };
     } catch (error) {
-        console.error('Failed to create Razorpay order:', error);
-        throw error;
+        handleApiError(error, 'order creation');
     }
 };
 
-const verifyPayment = async ({ orderId, paymentId, signature }) => {
+export const verifyPayment = async (verificationData) => {
     try {
-        const response = await API.post(`/payment/verify`, {
-            orderId,
-            paymentId,
-            signature,
-        });
-        return response.data;
+        const response = await API.post('/payment/verify', verificationData);
+        return response;
     } catch (error) {
-        console.error('Failed to verify Razorpay payment:', error);
-        throw error;
-    }
-};
-
-const getOrderDate = async (razorpayOrderId) => {
-    try {
-        const response = await API.get(`/payment/order-date/${razorpayOrderId}`);
-        return response.data;
-    } catch (error) {
-        console.error('Failed to fetch Razorpay order date:', error);
-        throw error;
+        handleApiError(error, 'verification');
     }
 };
 
 export default {
     createOrder,
-    verifyPayment,
-    getOrderDate,
+    verifyPayment
 };

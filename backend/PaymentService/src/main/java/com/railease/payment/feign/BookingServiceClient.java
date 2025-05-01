@@ -12,9 +12,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface BookingServiceClient {
 
 
-    @PostMapping("/api/booking/confirm/{bookingId}") // Fixed path and changed to PostMapping
+    @PostMapping("/api/booking/confirm/{bookingId}")
     void confirmBooking(@PathVariable("bookingId") Long bookingId);
 
     @GetMapping("/api/booking/{bookingId}")
     BookingDTO getBooking(@PathVariable("bookingId") Long bookingId);
+
+    @PutMapping("/api/booking/{bookingId}/fail")
+    void failBooking(@PathVariable Long bookingId);
 }

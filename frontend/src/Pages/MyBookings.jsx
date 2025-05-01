@@ -110,8 +110,20 @@ const BookingDetails = ({ user }) => {
                             <span>${formatDate(selectedBooking.travelDate)}</span>
                         </div>
                         <div class="print-detail">
+                            <span class="detail-label">Departure:</span>
+                            <span>${selectedBooking.departureTime || 'N/A'}</span>
+                        </div>
+                        <div class="print-detail">
+                            <span class="detail-label">Arrival:</span>
+                            <span>${selectedBooking.arrivalTime || 'N/A'}</span>
+                        </div>
+                        <div class="print-detail">
                             <span class="detail-label">Seat Tier:</span>
                             <span>${selectedBooking.seatTier}</span>
+                        </div>
+                        <div class="print-detail">
+                            <span class="detail-label">Seats Booked:</span>
+                            <span>${selectedBooking.seatsBooked || 'N/A'}</span>
                         </div>
                         <div class="print-detail">
                             <span class="detail-label">Price:</span>
@@ -164,8 +176,10 @@ const BookingDetails = ({ user }) => {
                                 <th>Source</th>
                                 <th>Destination</th>
                                 <th>Travel Date</th>
+                                <th>Departure</th>
                                 <th>Price</th>
                                 <th>Seat Tier</th>
+                                <th>Seats Booked</th> {/* New column */}
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -181,8 +195,10 @@ const BookingDetails = ({ user }) => {
                                     <td>{booking.source || 'N/A'}</td>
                                     <td>{booking.destination || 'N/A'}</td>
                                     <td>{booking.travelDate ? formatDate(booking.travelDate) : 'N/A'}</td>
+                                    <td>{booking.departureTime || 'N/A'}</td>
                                     <td>{booking.bookedPrice ? `₹${booking.bookedPrice.toFixed(2)}` : 'N/A'}</td>
                                     <td>{booking.seatTier || 'N/A'}</td>
+                                    <td>{booking.seatsBooked || 'N/A'}</td> {/* New data */}
                                     <td>
                                         <span className={`status ${booking.status?.toLowerCase()}`}>
                                             {booking.status || 'N/A'}
@@ -235,8 +251,20 @@ const BookingDetails = ({ user }) => {
                                 <span>{formatDate(selectedBooking.travelDate)}</span>
                             </div>
                             <div className="booking-detail">
+                                <span className="detail-label">Departure Time:</span>
+                                <span>{selectedBooking.departureTime || 'N/A'}</span>
+                            </div>
+                            <div className="booking-detail">
+                                <span className="detail-label">Arrival Time:</span>
+                                <span>{selectedBooking.arrivalTime || 'N/A'}</span>
+                            </div>
+                            <div className="booking-detail">
                                 <span className="detail-label">Seat Tier:</span>
                                 <span>{selectedBooking.seatTier}</span>
+                            </div>
+                            <div className="booking-detail">
+                                <span className="detail-label">Seats Booked:</span>
+                                <span>{selectedBooking.seatsBooked || 'N/A'}</span>
                             </div>
                             <div className="booking-detail">
                                 <span className="detail-label">Price:</span>

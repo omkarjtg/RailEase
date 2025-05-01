@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -74,21 +75,28 @@ public class FeedbackController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteFeedbackById(
-            @PathVariable Long id, HttpServletRequest request) {
+            @PathVariable Long id,
+            HttpServletRequest request) {
         UserDTO user = (UserDTO) request.getAttribute("user");
         if (user == null) {
             logger.error("UserDTO not found in request for DELETE /api/feedback/{}", id);
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Authentication required");
         }
+
         try {
             feedbackService.deleteFeedbackById(id, user.getId(), user.getRole());
-            return ResponseEntity.ok("Deleted successfully for id: " + id);
+            return ResponseEntity.ok("Feedback deleted successfully");
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(403).body("Not authorized");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(e.getMessage());
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(404).body("Not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
         }
     }
+
+
 
     @GetMapping("/bookings")
     public ResponseEntity<List<BookingDTO>> getUserBookings(HttpServletRequest request) {

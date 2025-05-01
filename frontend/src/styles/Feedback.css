@@ -1,78 +1,177 @@
 .feedback-container {
   max-width: 90%;
-  /* Use 90% of the screen width */
   width: 100%;
-  /* Ensure it doesn't exceed the parent container */
-  margin: 0 auto;
-  padding: 1.5rem;
-  background: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .feedback-container h2 {
+  font-size: 1.75rem;
+  color: #1a1a1a;
   text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.feedback-container h3 {
+  font-size: 1.25rem;
+  color: #1f2937;
+  margin: 2rem 0 1rem;
 }
 
 .feedback-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
 }
 
-.feedback-form label {
-  font-weight: bold;
-  margin-bottom: 0.3rem;
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.feedback-form select,
-.feedback-form textarea,
-.feedback-form input {
-  padding: 0.5rem;
+.form-label {
+  font-weight: 900;
+  font-size: 0.95rem;
+  color: #1d1c1c;
+}
+
+.form-group select,
+.form-group textarea {
+  padding: 0.75rem;
   font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #f8fafc;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-group select:disabled,
+.form-group textarea:disabled {
+  background: #e5e7eb;
+  cursor: not-allowed;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.form-help-text {
+  font-size: 0.85rem;
+  color: #414348;
 }
 
 .star-rating {
   display: flex;
-  gap: 5px;
-  font-size: 1.5rem;
-  cursor: pointer;
+  gap: 8px;
+  font-size: 1.75rem;
 }
 
 .star {
-  color: #ccc;
-  transition: color 0.3s ease;
+  color: #d1d5db;
+  cursor: pointer;
+  transition: color 0.2s ease;
 }
 
 .star.filled {
-  color: #ffc107;
+  color: #f59e0b;
 }
 
 .star:hover,
-.star:hover~.star {
-  color: #ffca2c;
+.star.filled:hover {
+  color: #d97706;
 }
 
-.feedback-form textarea {
-  resize: vertical;
+.star:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
 }
 
-.feedback-form button {
-  padding: 0.6rem 1rem;
-  font-weight: bold;
-  background-color: #007bff;
-  color: white;
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.form-actions button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-.feedback-form button:disabled {
-  background-color: #aaa;
+.form-actions button[type="submit"] {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.form-actions button[type="submit"]:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.form-actions button[type="submit"]:disabled {
+  background-color: #9ca3af;
   cursor: not-allowed;
+  transform: none;
+}
+
+.cancel-button {
+  background-color: #6b7280;
+  color: white;
+}
+
+.cancel-button:hover {
+  background-color: #4b5563;
+  transform: translateY(-1px);
+}
+
+.cancel-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.error-text {
+  color: #dc2626;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.loading-text {
+  color: #4b5563;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.feedback-list-section {
+  margin-top: 1.5rem;
+}
+
+.no-feedback-text {
+  color: #6b7280;
+  font-size: 1rem;
+  text-align: center;
+  padding: 1rem;
 }
 
 .feedback-list {
@@ -80,22 +179,125 @@
   padding: 0;
 }
 
-.feedback-list li {
-  background: #fff;
-  border: 1px solid #ddd;
-  padding: 0.75rem;
-  border-radius: 5px;
-  margin-bottom: 0.5rem;
+.feedback-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.error-text {
-  color: red;
-  font-weight: bold;
+.feedback-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.feedback-content {
+  flex: 1;
+}
+
+.feedback-content strong {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.feedback-content p {
+  margin: 0.5rem 0;
+  color: #4b5563;
+  font-size: 0.95rem;
+}
+
+.feedback-rating {
+  color: #f59e0b;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.feedback-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.feedback-actions button {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.feedback-actions button:first-child {
+  background-color: #ecd844;
+  color: rgb(0, 0, 0);
+}
+
+.feedback-actions button:first-child:hover {
+  background-color: #c2c84a;
+  transform: translateY(-1px);
+}
+
+.feedback-actions button:last-child {
+  background-color: #ef4444;
+  color: black;
+}
+
+.feedback-actions button:last-child:hover {
+  background-color: #dc2626;
+  transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .feedback-container {
+    padding: 1.5rem;
+    margin: 1rem auto;
+  }
+
+  .feedback-container h2 {
+    font-size: 1.5rem;
+  }
+
+  .feedback-container h3 {
+    font-size: 1.1rem;
+  }
+
+  .feedback-form {
+    gap: 1.25rem;
+  }
+
+  .form-group select,
+  .form-group textarea,
+  .form-actions button {
+    font-size: 0.95rem;
+  }
+
+  .star-rating {
+    font-size: 1.5rem;
+  }
+
+  .feedback-item {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .feedback-actions {
+    justify-content: flex-start;
+  }
+
+  .feedback-actions button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
 }
 
 @media (min-width: 1200px) {
   .feedback-container {
-    max-width: 1200px;
-    /* Set a fixed width for larger screens */
+    max-width: 1000px;
   }
 }

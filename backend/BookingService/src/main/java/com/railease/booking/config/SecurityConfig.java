@@ -50,6 +50,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/booking").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/booking/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/booking/my").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/booking/all").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/booking/**/cancel").authenticated()

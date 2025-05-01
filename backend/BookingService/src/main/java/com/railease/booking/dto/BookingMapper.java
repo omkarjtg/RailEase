@@ -13,8 +13,7 @@ import java.time.LocalDate;
 @Component
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
+
 public class BookingMapper {
 
     public Booking toEntity(BookingRequestDTO dto) {

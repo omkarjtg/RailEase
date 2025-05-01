@@ -69,6 +69,11 @@ public class BookingController {
         return ResponseEntity.ok(bookingDTOs);
     }
 
+    @PutMapping("/booking/{bookingId}/fail")
+    public void failBooking(@PathVariable Long bookingId){
+        bookingService.failBooking(bookingId);
+    }
+
     @GetMapping("/all")
     public ResponseEntity<List<BookingDTO>> getAllBookings(HttpServletRequest request) {
         UserDTO user = (UserDTO) request.getAttribute("user");
@@ -86,7 +91,7 @@ public class BookingController {
         return ResponseEntity.ok(bookingDTOs);
     }
 
-    @GetMapping("/{bookingId}")
+    @GetMapping("/id/{bookingId}")
     public ResponseEntity<BookingDTO> getBooking(@PathVariable Long bookingId) {
         Booking booking = bookingService.getBookingById(bookingId);
         return ResponseEntity.ok(bookingMapper.toDTO(booking));

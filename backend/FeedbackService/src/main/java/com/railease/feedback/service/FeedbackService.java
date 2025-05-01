@@ -76,11 +76,16 @@ public class FeedbackService {
     public void deleteFeedbackById(Long id, Long userId, Role role) {
         logger.info("Deleting feedback id: {} for userId: {}", id, userId);
         Feedback feedback = feedbackRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Feedback not found"));
+                .orElseThrow(() -> new IllegalStateException(
+                        String.format("Feedback with id %d not found", id)));
+
         if (!feedback.getUserId().equals(userId) && role != Role.ADMIN) {
-            throw new IllegalArgumentException("User not authorized to delete this feedback");
+            throw new IllegalArgumentException(
+                    String.format("User %d not authorized to delete feedback %d", userId, id));
         }
+
         feedbackRepository.deleteById(id);
+        logger.info("Deleted feedback id: {}", id);
     }
 
     public List<BookingDTO> getUserBookings(Long userId, String jwtToken) {

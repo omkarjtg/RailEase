@@ -39,6 +39,10 @@
   text-align: left;
   border-bottom: 1px solid #e2e8f0;
 }
+.booking-table th:nth-child(6),
+.booking-table td:nth-child(6) {
+    white-space: nowrap;
+}
 
 .booking-table th {
   background-color: #4a5568;
