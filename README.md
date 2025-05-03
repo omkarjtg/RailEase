@@ -36,9 +36,11 @@
 | **UserService**     | Manages user registration, login, and role-based authentication (JWT). |
 | **TrainService**    | Handles CRUD operations for trains and their schedule.                 |
 | **BookingService**  | Manages ticket bookings, cancellations, and user-booking history.      |
-| **FeedbackService** | Allows users to leave and manage feedback on bookings.                 |
+| **LocationServicr** | Allows admins to add and manage train stations|
+| **FeedbackService** | Allows users to leave and manage feedback on bookings. |
+| **PaymentGateway** | Utilizes Razorpay SDK for booking payments |
 | **NotificationService** | Sends booking confirmations and alerts (email/SMS).               |
-| **API Gateway**     | Routes requests to respective microservices.                           |
+| **API Gateway**     | Routes requests to respective microservices using Spring Cloud.                           |
 
 ---
 
@@ -60,7 +62,7 @@ cd RailEase
 
 ### Backend Setup
 
-Start Config, Eureka, and Gateway services first, then the others:
+Start Eureka, and Gateway services first, then the others:
 
 ```bash
 cd backend
@@ -92,11 +94,12 @@ Visit: `http://localhost:5173`
 
 - 🔐 JWT-based authentication and role-based access
 - 🔍 Train search and real-time availability
+- 🏧 Payments using razorpay SDK 
 - 🎟️ Booking with seat management
 - 📝 Feedback system per booking
 - 📩 Notifications (planned integration with email/SMS)
 - 🧭 Microservices architecture via Eureka + API Gateway
-- 📁 Centralized config with Spring Cloud Config
+
 
 ---
 
@@ -117,7 +120,6 @@ Visit: `http://localhost:5173`
 - Containerization with Docker + Docker Compose
 - Async notifications using RabbitMQ/Kafka
 - Seat availability per Seat tier 
-- Payment gateway integration
 - Admin dashboard for analytics
 - CI/CD via GitHub Actions
 
