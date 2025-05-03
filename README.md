@@ -39,7 +39,6 @@
 | **FeedbackService** | Allows users to leave and manage feedback on bookings.                 |
 | **NotificationService** | Sends booking confirmations and alerts (email/SMS).               |
 | **API Gateway**     | Routes requests to respective microservices.                           |
-| **Config Server**   | Centralized external configuration for all services.                   |
 
 ---
 
@@ -117,6 +116,7 @@ Visit: `http://localhost:5173`
 
 - Containerization with Docker + Docker Compose
 - Async notifications using RabbitMQ/Kafka
+- Seat availability per Seat tier 
 - Payment gateway integration
 - Admin dashboard for analytics
 - CI/CD via GitHub Actions
